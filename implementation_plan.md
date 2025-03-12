@@ -10,6 +10,8 @@
   - pydantic (for data validation)
   - python-dotenv (for environment variables)
   - jericho (optional, for alternative game interaction)
+- Obtain Zork game file:
+  - zork1-r119-s880429.z3 from https://github.com/the-infocom-files/zork1
 
 ### 1.2 Project Structure
 ```
