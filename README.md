@@ -71,9 +71,38 @@ This will start an interactive session where you can type commands like:
 
 - ✅ Project structure setup
 - ✅ Mock environment implementation
-- ⏳ Agent memory system (in progress)
+- ✅ Agent memory system
 - ⏳ Action generator (planned)
 - ⏳ LangGraph workflow (planned)
+
+## Components
+
+### Mock Environment
+
+The mock environment simulates the Zork game world without requiring external dependencies. It provides:
+
+- Navigation between locations
+- Object interactions (examining, taking, dropping)
+- Inventory management
+- Score and move tracking
+
+You can interact with it directly using:
+```
+python src/play_zork.py
+```
+
+### Memory System
+
+The memory system tracks the agent's experiences in the game world:
+
+- Stores observations and actions
+- Tracks location history and inventory
+- Provides retrieval methods for recent history
+
+You can test it using:
+```
+python tests/test_memory.py
+```
 
 ## License
 
