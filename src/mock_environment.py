@@ -63,6 +63,11 @@ class MockZorkEnvironment:
                 "exits": {"west": "living_room", "up": "upstairs", "window": "behind_house"},
                 "objects": ["table", "sack"]
             },
+            "upstairs": {
+                "description": "You are in the attic. The only exit is a stairway leading down.",
+                "exits": {"down": "kitchen"},
+                "objects": ["rope", "knife"]
+            },
             "living_room": {
                 "description": "You are in the living room. There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, and a large oriental rug in the center of the room.",
                 "exits": {"east": "kitchen", "west": None, "down": "cellar" if self.object_states.get("rug", {}).get("moved", False) else None},

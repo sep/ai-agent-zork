@@ -41,6 +41,11 @@ def main():
         default="gpt-3.5-turbo",
         help="LLM model to use (only applicable with --use-llm)"
     )
+    parser.add_argument(
+        "--api-key",
+        type=str,
+        help="API key for the LLM provider (defaults to OPENAI_API_KEY env var)"
+    )
     args = parser.parse_args()
     
     print_section("ZORK AI AGENT")
@@ -52,7 +57,7 @@ def main():
     # Choose the planner based on command line arguments
     if args.use_llm:
         print(f"This agent uses an LLM-based planner ({args.model}) to play Zork.")
-        planner = LLMActionPlanner(model_name=args.model)
+        planner = LLMActionPlanner(model_name=args.model, api_key=args.api_key)
     else:
         print("This agent uses a rule-based planner to play Zork.")
         planner = ActionPlanner()

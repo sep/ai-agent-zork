@@ -94,6 +94,35 @@ You can specify which LLM model to use with the `--model` flag:
 python src/run_agent.py --use-llm --model gpt-4
 ```
 
+### LLM Integration
+
+The LLM-based planner requires an OpenAI API key to function. You can provide this in three ways:
+
+1. Create a `.env` file in the project root with your API key:
+   ```
+   OPENAI_API_KEY=your-api-key-here
+   ```
+   (You can copy and rename the provided `.env.example` file)
+
+2. Set the `OPENAI_API_KEY` environment variable:
+   ```
+   # On Linux/macOS
+   export OPENAI_API_KEY=your-api-key-here
+   
+   # On Windows (Command Prompt)
+   set OPENAI_API_KEY=your-api-key-here
+   
+   # On Windows (PowerShell)
+   $env:OPENAI_API_KEY="your-api-key-here"
+   ```
+
+3. Pass the API key directly as a command-line argument:
+   ```
+   python src/run_agent.py --use-llm --api-key your-api-key-here
+   ```
+
+If no API key is provided, the LLM-based planner will fall back to the rule-based planner.
+
 The agent will display each action it takes, the resulting observation, and its current state (location, score, inventory).
 
 ## Development Status

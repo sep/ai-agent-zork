@@ -13,7 +13,13 @@ reasoning and contextual understanding.
 from typing import List, Any, Dict, Optional
 import os
 import json
+import time
+import requests
+from dotenv import load_dotenv
 from .planner import ActionPlanner
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class LLMActionPlanner(ActionPlanner):
@@ -24,18 +30,23 @@ class LLMActionPlanner(ActionPlanner):
     for more sophisticated action generation and planning.
     """
 
-    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+    def __init__(self, model_name: str = "gpt-3.5-turbo", api_key: str = None):
         """
         Initialize the LLM action planner.
         
         Args:
             model_name: The name of the LLM model to use
+            api_key: The API key for the LLM provider (defaults to environment variable)
         """
         super().__init__()
         self.model_name = model_name
+        # Try to get API key from provided argument, then environment variable
+        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         self.context_window = []
         self.max_context_items = 10
         self.system_prompt = self._create_system_prompt()
+        self.max_retries = 3
+        self.retry_delay = 2  # seconds
         
     def _create_system_prompt(self) -> str:
         """
@@ -152,12 +163,73 @@ class LLMActionPlanner(ActionPlanner):
         Returns:
             The generated action
         """
+        # Check if API key is available
+        if not self.api_key:
+            print("No API key found. Set OPENAI_API_KEY environment variable.")
+            print("Falling back to rule-based planner.")
+            return super().generate_action(observation, valid_actions, memory)
+        
         # Create the prompt for the LLM
         prompt = self._create_llm_prompt(observation, valid_actions, memory)
         
-        # TODO: Implement actual LLM call here
-        # For now, fall back to rule-based planner
-        print("LLM integration not implemented yet. Falling back to rule-based planner.")
+        # Prepare the API request
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        
+        data = {
+            "model": self.model_name,
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 50,
+            "top_p": 1.0,
+            "frequency_penalty": 0.0,
+            "presence_penalty": 0.0
+        }
+        
+        # Make the API request with retries
+        for attempt in range(self.max_retries):
+            try:
+                response = requests.post(
+                    "https://api.openai.com/v1/chat/completions",
+                    headers=headers,
+                    json=data,
+                    timeout=30
+                )
+                
+                # Check if the request was successful
+                if response.status_code == 200:
+                    result = response.json()
+                    action = result["choices"][0]["message"]["content"].strip()
+                    print(f"LLM generated action: {action}")
+                    return action
+                
+                # Handle rate limiting
+                if response.status_code == 429:
+                    wait_time = self.retry_delay * (2 ** attempt)
+                    print(f"Rate limited. Waiting {wait_time} seconds...")
+                    time.sleep(wait_time)
+                    continue
+                
+                # Handle other errors
+                print(f"API error: {response.status_code} - {response.text}")
+                break
+                
+            except Exception as e:
+                print(f"Error calling LLM API: {str(e)}")
+                if attempt < self.max_retries - 1:
+                    wait_time = self.retry_delay * (2 ** attempt)
+                    print(f"Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    break
+        
+        # Fall back to rule-based planner if API call fails
+        print("LLM API call failed. Falling back to rule-based planner.")
         return super().generate_action(observation, valid_actions, memory)
     
     def _create_llm_prompt(
