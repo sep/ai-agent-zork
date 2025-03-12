@@ -61,7 +61,7 @@ def create_agent_workflow(
             The updated state
         """
         # Add the current observation to history
-        if state.get("observation"):
+        if state["observation"]:
             history_item = {
                 "observation": state["observation"],
                 "location": state["location"],
@@ -71,11 +71,11 @@ def create_agent_workflow(
             }
             
             # Add the previous action if it exists
-            if state.get("action"):
+            if state["action"]:
                 history_item["action"] = state["action"]
                 
             # Add to history
-            state["history"] = state.get("history", []) + [history_item]
+            state["history"] = state["history"] + [history_item]
         
         # Clear the previous thought and action
         state["thought"] = None
@@ -113,7 +113,7 @@ def create_agent_workflow(
         Moves: {state["moves"]}
         
         Recent History:
-        {state["history"][-3:] if state.get("history") else "No history yet."}
+        {state["history"][-3:]}
         
         Think about the current situation. What should you do next and why?
         Consider your goals, the environment, and the available actions.
@@ -194,7 +194,7 @@ def create_agent_workflow(
             "continue" to continue the workflow, "end" to end it
         """
         # End the workflow if the game is over
-        if state.get("done", False):
+        if state["done"]:
             return "end"
         
         # Continue the workflow
@@ -264,7 +264,7 @@ def run_agent_workflow(
         history=[],
         score=state["score"],
         moves=state["moves"],
-        done=state.get("done", False)
+        done=state["done"]
     )
     
     # Run the workflow
@@ -285,10 +285,10 @@ def run_agent_workflow(
         agent_state = result
         
         # Print the thought and action
-        if agent_state.get("thought"):
+        if agent_state["thought"]:
             print(f"Thought: {agent_state['thought']}")
         
-        if agent_state.get("action"):
+        if agent_state["action"]:
             print(f"Action: {agent_state['action']}")
             
             # Execute the action in the environment
@@ -301,7 +301,7 @@ def run_agent_workflow(
             agent_state["location"] = state["location"]
             agent_state["score"] = state["score"]
             agent_state["moves"] = state["moves"]
-            agent_state["done"] = state.get("done", False)
+            agent_state["done"] = state["done"]
             
             # Print the result
             print(f"Observation: {state['observation']}")
