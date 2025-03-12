@@ -215,7 +215,8 @@ class MockZorkEnvironment:
                 valid_actions.append(f"turn on {obj}")
                 valid_actions.append(f"turn off {obj}")
             
-            if obj == "leaflet" and (obj in self.inventory or self.object_states["mailbox"]["open"] and self.object_states["leaflet"]["location"] == "in_mailbox"):
+            # Add read action for leaflet if it's in inventory
+            if obj == "leaflet" and (self.object_states["leaflet"]["location"] == "inventory" or "leaflet" in self.inventory):
                 valid_actions.append(f"read {obj}")
             
             if obj == "rug":
@@ -317,6 +318,9 @@ class MockZorkEnvironment:
         # Add objects in open containers in the current location
         if "mailbox" in visible_objects and self.object_states["mailbox"]["open"] and self.object_states["leaflet"]["location"] == "in_mailbox":
             visible_objects.append("leaflet")
+        
+        # Add objects in inventory
+        visible_objects.extend(self.inventory)
         
         return visible_objects
 
