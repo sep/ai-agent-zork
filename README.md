@@ -39,10 +39,13 @@ ai-agent-zork/
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-2. Install dependencies:
+2. Install the package in development mode:
    ```
-   pip install -r requirements.txt
+   pip install -e .
    ```
+
+   This will install all required dependencies and make the package importable
+   from anywhere in your Python environment.
 
 ## Usage
 

@@ -5,16 +5,8 @@ This script demonstrates how the memory system works with the mock environment.
 It performs a sequence of actions and shows how the memory system tracks
 observations, actions, locations, and inventory.
 """
-import os
-import sys
-
-# Add the project root to the Python path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-
-# Import after path setup
-from src.mock_environment import MockZorkEnvironment  # noqa: E402
-from src.agent.memory import AgentMemory  # noqa: E402
+from src.mock_environment import MockZorkEnvironment
+from src.agent.memory import AgentMemory
 
 
 def print_section(title):

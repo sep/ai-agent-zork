@@ -2,15 +2,7 @@
 Interactive script to manually play the mock Zork environment.
 This allows testing and exploring the environment without an AI agent.
 """
-import os
-import sys
-
-# Add the project root to the Python path
-project_root = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-sys.path.insert(0, project_root)
-
-# Import after path setup
-from src.mock_environment import MockZorkEnvironment  # noqa: E402
+from src.mock_environment import MockZorkEnvironment
 
 
 def main():
