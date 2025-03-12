@@ -5,31 +5,51 @@
 ### 1.1 Environment Configuration
 - Create a virtual environment
 - Install core dependencies:
-  - jericho (for game interaction)
   - langgraph (for agent workflow)
   - langchain (for LLM integration)
   - pydantic (for data validation)
   - python-dotenv (for environment variables)
+  - jericho (optional, for alternative game interaction)
 
 ### 1.2 Project Structure
 ```
 ai-agent-zork/
-├── games/              # Game files (.z5, .dat)
+├── games/              # Game files (.z3, .z5, .dat)
+│   └── zork1-r119-s880429.z3
 ├── src/                # Source code
 │   ├── agent/          # Agent implementation
-│   ├── environment.py  # Game environment wrapper
-│   └── main.py         # Entry point
+│   ├── mock_environment.py  # Mock game environment
+│   ├── jericho_environment.py  # Optional Jericho wrapper (reference)
+│   └── main.py         # Entry point (to be implemented)
 ├── tests/              # Test cases
+│   ├── simple_test.py  # Project structure verification
+│   ├── test_mock_environment.py  # Tests for mock environment
+│   └── test_jericho_environment.py  # Tests for Jericho (reference)
 ├── .env                # Environment variables (API keys)
 ├── .gitignore          # Git ignore file
+├── implementation_plan.md  # This document
 ├── requirements.txt    # Project dependencies
 └── README.md           # Project documentation
 ```
 
 ## 2. Core Components
 
-### 2.1 Game Environment (src/environment.py)
+### 2.1 Game Environment
+
+#### 2.1.1 Mock Environment (src/mock_environment.py)
+- Pure Python implementation simulating Zork
+- No external dependencies required
+- Methods:
+  - `__init__()`: Initialize the environment
+  - `reset()`: Reset the game to initial state
+  - `step(action)`: Execute action and return observation
+  - `get_valid_actions()`: Get list of valid actions
+  - `get_inventory()`: Get current inventory
+  - Internal methods for handling specific actions and game state
+
+#### 2.1.2 Jericho Environment (src/jericho_environment.py) - Optional
 - Wrapper around Jericho's FrotzEnv
+- Requires Jericho installation (Linux-compatible)
 - Methods:
   - `__init__(game_path)`: Initialize the environment
   - `reset()`: Reset the game to initial state
@@ -59,7 +79,7 @@ ai-agent-zork/
 - Generate actions based on observations and memory
 - Components:
   - Action generator (using LLM)
-  - Action validator (using Jericho's valid actions)
+  - Action validator (using environment's valid actions)
 - Methods:
   - `generate_action(observation, memory)`: Generate next action
   - `validate_action(action, valid_actions)`: Check if action is valid
@@ -117,25 +137,25 @@ ai-agent-zork/
 
 ## 3. Implementation Phases
 
-### Phase 1: Basic Infrastructure
-- Set up project structure
-- Implement environment wrapper
-- Create simple memory system
-- Build basic action generator
+### Phase 1: Basic Infrastructure (In Progress)
+- ✅ Set up project structure
+- ✅ Implement mock environment
+- ⏳ Create simple memory system
+- ⏳ Build basic action generator
 
-### Phase 2: LangGraph Integration
+### Phase 2: LangGraph Integration (Upcoming)
 - Implement workflow nodes
 - Connect nodes with edges
 - Add state management
 - Create basic agent loop
 
-### Phase 3: Advanced Features
+### Phase 3: Advanced Features (Planned)
 - Improve memory with embeddings
 - Add planning capabilities
 - Implement exploration strategies
 - Add performance metrics
 
-### Phase 4: Evaluation & Refinement
+### Phase 4: Evaluation & Refinement (Planned)
 - Test on different game scenarios
 - Measure success metrics
 - Optimize prompts
@@ -178,11 +198,18 @@ ai-agent-zork/
 
 ## 6. Development Workflow
 
-1. Implement environment wrapper
-2. Build basic memory system
-3. Create simple action generator
-4. Integrate with LangGraph
-5. Test on simple game scenarios
-6. Iteratively improve components
-7. Add advanced features
-8. Evaluate and refine
+### Completed Steps
+1. ✅ Set up project structure
+2. ✅ Implement mock environment (src/mock_environment.py)
+3. ✅ Create tests for the mock environment (tests/test_mock_environment.py)
+4. ✅ Verify project structure (tests/simple_test.py)
+
+### Next Steps
+5. Implement memory system (src/agent/memory.py)
+6. Create action generator (src/agent/planner.py)
+7. Implement LangGraph workflow (src/agent/workflow.py)
+8. Create main application (src/main.py)
+9. Test on simple game scenarios
+10. Iteratively improve components
+11. Add advanced features
+12. Evaluate and refine

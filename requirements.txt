@@ -1,0 +1,9 @@
+# Core dependencies
+langgraph>=0.0.15
+langchain>=0.0.267
+langchain-openai>=0.0.2
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+# Optional dependencies (not required for the mock environment)
+# jericho>=3.0.0  # Uncomment if using the Jericho-based environment
