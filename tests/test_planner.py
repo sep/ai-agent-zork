@@ -7,7 +7,7 @@ planner generates actions based on observations and memory.
 """
 from src.mock_environment import MockZorkEnvironment
 from src.agent.memory import AgentMemory
-from src.agent.planner import ActionPlanner
+from src.agent.rule_based_planner import RuleBasedPlanner
 
 
 def print_section(title):
@@ -19,7 +19,7 @@ def print_section(title):
 
 def main():
     """
-    Test the ActionPlanner class with the mock environment and memory.
+    Test the RuleBasedPlanner class with the mock environment and memory.
     
     This function:
     1. Initializes the environment, memory, and planner
@@ -33,7 +33,7 @@ def main():
     # Initialize the components
     env = MockZorkEnvironment()
     memory = AgentMemory()
-    planner = ActionPlanner()
+    planner = RuleBasedPlanner()
     
     # Get the initial state
     state = env.reset()

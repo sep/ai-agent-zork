@@ -1,28 +1,28 @@
 """
-Planner module for the Zork AI agent.
+Rule-based planner module for the Zork AI agent.
 
-    This module provides the action generation and planning capabilities
-    for the agent. It is responsible for:
-1. Generating actions based on observations and memory
+This module provides rule-based action generation and planning capabilities
+for the agent. It is responsible for:
+1. Generating actions based on observations and memory using predefined rules
 2. Validating actions against the environment's valid actions
 3. Implementing strategies for exploration and puzzle-solving
 
-The planner is implemented using a bottom-up approach, starting with basic
-action generation and validation, and gradually adding more advanced features.
+The rule-based planner uses a set of handcrafted rules to determine actions,
+in contrast to the LLM-based planner which uses a language model.
 """
 from typing import List, Any, Tuple
 
 
-class ActionPlanner:
+class RuleBasedPlanner:
     """
-    Action planner for the Zork AI agent.
+    Rule-based action planner for the Zork AI agent.
     
     This class is responsible for generating actions based on
-    observations and memory, and validating them against the
-    environment's valid actions.
+    observations and memory using predefined rules, and validating
+    them against the environment's valid actions.
     
-    It starts with basic functionality and will be extended with more
-    advanced features in future iterations.
+    It uses a set of handcrafted rules to determine actions, in contrast
+    to the LLM-based planner which uses a language model.
     """
 
     def __init__(self):

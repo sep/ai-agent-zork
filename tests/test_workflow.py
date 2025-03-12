@@ -9,7 +9,7 @@ import sys
 # Add the src directory to the path so we can import the modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.agent.workflow import create_agent_workflow, AgentState, run_agent_workflow
+from src.agent.implicit.workflow import create_agent_workflow, AgentState, run_agent_workflow
 
 
 class TestWorkflow(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestWorkflow(unittest.TestCase):
             MagicMock(content="examine test")
         ]
 
-    @patch('src.agent.workflow.ChatOpenAI')
+    @patch('src.agent.implicit.workflow.ChatOpenAI')
     def test_create_workflow(self, mock_chat_openai):
         """Test creating the workflow."""
         # Set up the mock
@@ -64,7 +64,7 @@ class TestWorkflow(unittest.TestCase):
         app = workflow.compile()
         self.assertIsNotNone(app)
 
-    @patch('src.agent.workflow.ChatOpenAI')
+    @patch('src.agent.implicit.workflow.ChatOpenAI')
     def test_observe_node(self, mock_chat_openai):
         """Test the observe node."""
         # Set up the mock
@@ -100,7 +100,7 @@ class TestWorkflow(unittest.TestCase):
         # Assert that the LLM was called twice (once for thought, once for action)
         self.assertEqual(self.mock_llm.invoke.call_count, 2)
 
-    @patch('src.agent.workflow.ChatOpenAI')
+    @patch('src.agent.implicit.workflow.ChatOpenAI')
     def test_run_workflow(self, mock_chat_openai):
         """Test running the workflow."""
         # Set up the mock

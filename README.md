@@ -70,28 +70,40 @@ This will start an interactive session where you can type commands like:
 
 ### Running the AI Agent
 
-You can run the AI agent that automatically plays Zork using:
+The project provides several ways to run the AI agent, depending on which approach you want to use:
+
+#### Rule-Based Agent
+
+You can run the agent with the rule-based planner using:
 
 ```
-python src/run_agent.py
+python src/run_rule_based_agent.py
 ```
 
-This will start the agent with the rule-based planner by default, which will:
-- Explore the environment systematically
-- Interact with objects it encounters
-- Track its progress through the game
-- Continue until stopped (Ctrl+C)
+This will start the agent with a rule-based planner that:
+- Explores the environment systematically
+- Interacts with objects it encounters
+- Tracks its progress through the game
+- Continues until stopped (Ctrl+C)
 
-You can also run the agent with the LLM-based planner by using the `--use-llm` flag:
+The rule-based agent doesn't require an LLM or API key.
+
+#### LLM-Based Agents
+
+For more sophisticated agents that use LLMs, you can use the unified runner:
 
 ```
-python src/run_agent.py --use-llm
+# Run the implicit agent (generates text commands directly)
+python src/run_zork_agent.py --agent-type implicit
+
+# Run the explicit agent (uses tools with structured parameters)
+python src/run_zork_agent.py --agent-type explicit
 ```
 
 You can specify which LLM model to use with the `--model` flag:
 
 ```
-python src/run_agent.py --use-llm --model gpt-4
+python src/run_zork_agent.py --agent-type explicit --model gpt-4
 ```
 
 ### LLM Integration
@@ -118,10 +130,10 @@ The LLM-based planner requires an OpenAI API key to function. You can provide th
 
 3. Pass the API key directly as a command-line argument:
    ```
-   python src/run_agent.py --use-llm --api-key your-api-key-here
+   python src/run_zork_agent.py --agent-type implicit --api-key your-api-key-here
    ```
 
-If no API key is provided, the LLM-based planner will fall back to the rule-based planner.
+If no API key is provided, the LLM-based agents will attempt to use the environment variable.
 
 The agent will display each action it takes, the resulting observation, and its current state (location, score, inventory).
 
@@ -181,6 +193,8 @@ You can test it using:
 python tests/test_planner.py
 ```
 
+Note: The rule-based planner is implemented in `src/agent/rule_based_planner.py`.
+
 #### LLM-Based Planner
 
 The LLM-based planner extends the rule-based planner with more sophisticated reasoning:
@@ -190,36 +204,65 @@ The LLM-based planner extends the rule-based planner with more sophisticated rea
 - Falls back to rule-based planning when needed
 - Provides more advanced puzzle-solving capabilities
 
-You can use it by running:
+You can use it with the implicit agent:
 ```
-python src/run_agent.py --use-llm
+python src/run_zork_agent.py --agent-type implicit
 ```
 
-### LangGraph Workflow
+### Agent Architectures
 
-The LangGraph workflow implements a more sophisticated agent architecture:
+This project implements two different agent architectures to demonstrate the evolution of AI agent design:
 
-- Observe-Think-Act loop for better reasoning
-- Explicit thought generation before taking actions
-- Stateful workflow management
-- Better handling of complex game situations
+#### Implicit Agent
 
-You can run the agent with the LangGraph workflow using:
+The implicit agent uses a LangGraph workflow with an observe-think-act loop:
+
+- Generates text commands directly (e.g., "go north", "take lamp")
+- Implicit reasoning about available actions
+- Natural language command generation
+
+You can run either agent type using the unified runner:
+
 ```
-python src/run_langgraph_agent.py
+# Run the implicit agent (default)
+python src/run_zork_agent.py --agent-type implicit
+
+# Run the explicit agent
+python src/run_zork_agent.py --agent-type explicit
 ```
 
 You can specify which LLM model to use with the `--model` flag:
 ```
-python src/run_langgraph_agent.py --model gpt-4
+python src/run_zork_agent.py --agent-type implicit --model gpt-4
 ```
 
-The LangGraph workflow provides several advantages:
-- More transparent reasoning (thoughts are displayed)
-- Better decision-making through explicit reasoning
-- More flexible architecture for future enhancements
+For backward compatibility, you can also run each agent directly:
+```
+# Implicit agent
+python src/run_implicit_agent.py
 
-A detailed diagram and explanation of the agent workflow can be found in [docs/agent_workflow.md](docs/agent_workflow.md).
+# Explicit agent
+python src/run_explicit_agent.py
+```
+
+#### Implicit Agent
+
+The implicit agent provides:
+- Transparent reasoning (thoughts are displayed)
+- Direct command generation
+- Stateful workflow management
+
+A detailed diagram and explanation of the implicit agent workflow can be found in [src/agent/implicit/README.md](src/agent/implicit/README.md).
+
+#### Explicit Agent
+
+The explicit agent provides several advantages:
+- More structured interaction with the environment
+- Clearer separation of reasoning and action
+- Better alignment with modern AI agent frameworks
+- Extensibility through the Model Context Protocol (MCP)
+
+A detailed diagram and explanation of the explicit agent workflow can be found in [src/agent/explicit/README.md](src/agent/explicit/README.md).
 
 ## License
 

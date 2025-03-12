@@ -6,7 +6,7 @@ based on observations and memory.
 """
 import unittest
 from src.agent.memory import AgentMemory
-from src.agent.llm_planner import LLMActionPlanner
+from src.agent.llm_planner import LLMBasedPlanner
 
 
 class TestLLMPlanner(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestLLMPlanner(unittest.TestCase):
 
     def setUp(self):
         """Set up the test environment."""
-        self.planner = LLMActionPlanner()
+        self.planner = LLMBasedPlanner()
         self.memory = AgentMemory()
 
     def test_initialization(self):

@@ -7,7 +7,7 @@ for the agent. It is responsible for:
 2. Validating actions against the environment's valid actions
 3. Implementing advanced strategies for exploration and puzzle-solving
 
-The LLM planner extends the rule-based planner with more sophisticated
+The LLM planner extends the RuleBasedPlanner with more sophisticated
 reasoning and contextual understanding.
 """
 from typing import List, Any, Dict, Optional
@@ -16,17 +16,17 @@ import json
 import time
 import requests
 from dotenv import load_dotenv
-from .planner import ActionPlanner
+from .rule_based_planner import RuleBasedPlanner
 
 # Load environment variables from .env file
 load_dotenv()
 
 
-class LLMActionPlanner(ActionPlanner):
+class LLMBasedPlanner(RuleBasedPlanner):
     """
     LLM-powered action planner for the Zork AI agent.
     
-    This class extends the rule-based ActionPlanner with LLM capabilities
+    This class extends the RuleBasedPlanner with LLM capabilities
     for more sophisticated action generation and planning.
     """
 
