@@ -146,11 +146,11 @@ ai-agent-zork/
 
 ## 3. Implementation Phases
 
-### Phase 1: Basic Infrastructure (In Progress)
+### Phase 1: Basic Infrastructure (Completed)
 - ✅ Set up project structure
 - ✅ Implement mock environment
 - ✅ Create simple memory system
-- ⏳ Build basic action generator
+- ✅ Build basic action generator
 
 ### Phase 2: LangGraph Integration (Upcoming)
 - Implement workflow nodes
@@ -205,9 +205,8 @@ ai-agent-zork/
 - Steps to complete objectives
 - Score progression over time
 
-## 6. Development Workflow
+## 6. Development Steps
 
-### Completed Steps
 1. ✅ Set up project structure
 2. ✅ Implement mock environment (src/mock_environment.py)
 3. ✅ Create tests for the mock environment (tests/test_mock_environment.py)
@@ -216,12 +215,11 @@ ai-agent-zork/
 6. ✅ Implement memory system (src/agent/memory.py)
 7. ✅ Create tests for the memory system (tests/test_memory.py)
 8. ✅ Create interactive script for manual testing (src/play_zork.py)
-
-### Next Steps
-9. Create action generator (src/agent/planner.py)
-10. Implement LangGraph workflow (src/agent/workflow.py)
-11. Create main application (src/main.py)
-12. Test on simple game scenarios
-13. Iteratively improve components
-14. Add advanced features
-15. Evaluate and refine
+9. ✅ Create action generator/planner (src/agent/planner.py)
+10. ✅ Create tests for the planner (tests/test_planner.py)
+11. Implement LangGraph workflow (src/agent/workflow.py)
+12. Create main application (src/main.py)
+13. Test on simple game scenarios
+14. Iteratively improve components
+15. Add advanced features
+16. Evaluate and refine

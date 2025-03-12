@@ -75,7 +75,7 @@ This will start an interactive session where you can type commands like:
 - ✅ Project structure setup
 - ✅ Mock environment implementation
 - ✅ Agent memory system
-- ⏳ Action generator (planned)
+- ✅ Action planner/generator
 - ⏳ LangGraph workflow (planned)
 
 ## Components
@@ -105,6 +105,19 @@ The memory system tracks the agent's experiences in the game world:
 You can test it using:
 ```
 python tests/test_memory.py
+```
+
+### Action Planner
+
+The action planner generates actions based on observations and memory:
+
+- Rule-based action generation
+- Action validation and correction
+- Exploration state tracking
+
+You can test it using:
+```
+python tests/test_planner.py
 ```
 
 ## License
