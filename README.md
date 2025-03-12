@@ -132,7 +132,7 @@ The agent will display each action it takes, the resulting observation, and its 
 - ✅ Agent memory system
 - ✅ Rule-based action planner
 - ✅ LLM-based action planner
-- ⏳ LangGraph workflow (planned)
+- ✅ LangGraph workflow
 
 ## Components
 
@@ -194,6 +194,32 @@ You can use it by running:
 ```
 python src/run_agent.py --use-llm
 ```
+
+### LangGraph Workflow
+
+The LangGraph workflow implements a more sophisticated agent architecture:
+
+- Observe-Think-Act loop for better reasoning
+- Explicit thought generation before taking actions
+- Stateful workflow management
+- Better handling of complex game situations
+
+You can run the agent with the LangGraph workflow using:
+```
+python src/run_langgraph_agent.py
+```
+
+You can specify which LLM model to use with the `--model` flag:
+```
+python src/run_langgraph_agent.py --model gpt-4
+```
+
+The LangGraph workflow provides several advantages:
+- More transparent reasoning (thoughts are displayed)
+- Better decision-making through explicit reasoning
+- More flexible architecture for future enhancements
+
+A detailed diagram and explanation of the agent workflow can be found in [docs/agent_workflow.md](docs/agent_workflow.md).
 
 ## License
 
