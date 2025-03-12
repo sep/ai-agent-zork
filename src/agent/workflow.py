@@ -25,6 +25,7 @@ class AgentState(TypedDict):
     history: List[Dict[str, Any]]
     score: int
     moves: int
+    done: bool
 
 
 def create_agent_workflow(
@@ -193,7 +194,7 @@ def create_agent_workflow(
             "continue" to continue the workflow, "end" to end it
         """
         # End the workflow if the game is over
-        if state.get("game_over", False):
+        if state.get("done", False):
             return "end"
         
         # Continue the workflow
@@ -262,7 +263,8 @@ def run_agent_workflow(
         action=None,
         history=[],
         score=state["score"],
-        moves=state["moves"]
+        moves=state["moves"],
+        done=state.get("done", False)
     )
     
     # Run the workflow
@@ -299,7 +301,7 @@ def run_agent_workflow(
             agent_state["location"] = state["location"]
             agent_state["score"] = state["score"]
             agent_state["moves"] = state["moves"]
-            agent_state["game_over"] = state.get("done", False)
+            agent_state["done"] = state.get("done", False)
             
             # Print the result
             print(f"Observation: {state['observation']}")

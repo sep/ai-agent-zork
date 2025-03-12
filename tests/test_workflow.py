@@ -83,7 +83,8 @@ class TestWorkflow(unittest.TestCase):
             action=None,
             history=[],
             score=0,
-            moves=0
+            moves=0,
+            done=False
         )
         
         # Compile the workflow

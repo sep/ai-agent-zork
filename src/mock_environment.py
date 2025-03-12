@@ -22,7 +22,7 @@ class MockZorkEnvironment:
         self.score = 0
         self.moves = 0
         self.max_moves = 1000
-        self.game_over = False
+        self.done = False
         
         # Object states
         self.object_states = {
@@ -119,12 +119,12 @@ class MockZorkEnvironment:
         self.__init__()
         self.moves = 0
         self.score = 0
-        self.game_over = False
+        self.done = False
         
         return {
             "observation": self._get_location_description(),
             "score": self.score,
-            "done": self.game_over,
+            "done": self.done,
             "moves": self.moves,
             "valid_actions": self.get_valid_actions(),
             "inventory": self.get_inventory(),
@@ -145,11 +145,11 @@ class MockZorkEnvironment:
         
         # Check for maximum moves
         if self.moves >= self.max_moves:
-            self.game_over = True
+            self.done = True
             return {
                 "observation": "You have exceeded the maximum number of moves.",
                 "score": self.score,
-                "done": self.game_over,
+                "done": self.done,
                 "moves": self.moves,
                 "valid_actions": [],
                 "inventory": self.get_inventory(),
@@ -165,13 +165,13 @@ class MockZorkEnvironment:
                 self.grue_warning_given = True
                 result = "It is pitch black. You are likely to be eaten by a grue.\n\n" + result
             elif self.grue_warning_given and self.moves % 3 == 0:
-                self.game_over = True
+                self.done = True
                 result = "Oh, no! You have walked into the slavering fangs of a lurking grue!\n\n***** You have died *****"
         
         return {
             "observation": result,
             "score": self.score,
-            "done": self.game_over,
+            "done": self.done,
             "moves": self.moves,
             "valid_actions": self.get_valid_actions(),
             "inventory": self.get_inventory(),
