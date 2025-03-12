@@ -46,7 +46,26 @@ ai-agent-zork/
 
 ## Usage
 
-*Note: The agent implementation is still in progress. This section will be updated when the agent is ready to use.*
+### Playing the Mock Zork Environment Manually
+
+You can interact with the mock Zork environment directly using the interactive script:
+
+```
+python src/play_zork.py
+```
+
+This will start an interactive session where you can type commands like:
+- `north`, `south`, `east`, `west` - Move in different directions
+- `look` - Look around
+- `examine [object]` - Examine an object
+- `take [object]` - Take an object
+- `inventory` or `i` - Check your inventory
+- `open [object]`, `close [object]` - Interact with objects
+- `valid` - Show valid actions in the current state
+- `help` - Show available commands
+- `quit` or `exit` - End the session
+
+*Note: The AI agent implementation is still in progress.*
 
 ## Development Status
 
