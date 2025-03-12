@@ -2,12 +2,14 @@
 Run the Zork AI agent with the current components.
 
 This script runs the agent with the mock environment, memory system, and
-rule-based planner. It demonstrates how the agent can play Zork without
-the LangGraph workflow.
+either the rule-based planner or the LLM-based planner. It demonstrates 
+how the agent can play Zork without the LangGraph workflow.
 """
+import argparse
 from src.mock_environment import MockZorkEnvironment
 from src.agent.memory import AgentMemory
 from src.agent.planner import ActionPlanner
+from src.agent.llm_planner import LLMActionPlanner
 
 
 def print_section(title):
@@ -26,14 +28,36 @@ def main():
     2. Runs the agent in a loop
     3. Shows the agent's actions and the environment's responses
     """
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Run the Zork AI agent")
+    parser.add_argument(
+        "--use-llm", 
+        action="store_true", 
+        help="Use the LLM-based planner instead of the rule-based planner"
+    )
+    parser.add_argument(
+        "--model", 
+        type=str, 
+        default="gpt-3.5-turbo",
+        help="LLM model to use (only applicable with --use-llm)"
+    )
+    args = parser.parse_args()
+    
     print_section("ZORK AI AGENT")
-    print("This agent uses a rule-based planner to play Zork.")
-    print("Press Ctrl+C to stop the agent.")
     
     # Initialize the components
     env = MockZorkEnvironment()
     memory = AgentMemory()
-    planner = ActionPlanner()
+    
+    # Choose the planner based on command line arguments
+    if args.use_llm:
+        print(f"This agent uses an LLM-based planner ({args.model}) to play Zork.")
+        planner = LLMActionPlanner(model_name=args.model)
+    else:
+        print("This agent uses a rule-based planner to play Zork.")
+        planner = ActionPlanner()
+    
+    print("Press Ctrl+C to stop the agent.")
     
     # Get the initial state
     state = env.reset()

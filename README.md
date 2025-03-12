@@ -76,11 +76,23 @@ You can run the AI agent that automatically plays Zork using:
 python src/run_agent.py
 ```
 
-This will start the agent with the rule-based planner, which will:
+This will start the agent with the rule-based planner by default, which will:
 - Explore the environment systematically
 - Interact with objects it encounters
 - Track its progress through the game
 - Continue until stopped (Ctrl+C)
+
+You can also run the agent with the LLM-based planner by using the `--use-llm` flag:
+
+```
+python src/run_agent.py --use-llm
+```
+
+You can specify which LLM model to use with the `--model` flag:
+
+```
+python src/run_agent.py --use-llm --model gpt-4
+```
 
 The agent will display each action it takes, the resulting observation, and its current state (location, score, inventory).
 
@@ -89,7 +101,8 @@ The agent will display each action it takes, the resulting observation, and its 
 - ✅ Project structure setup
 - ✅ Mock environment implementation
 - ✅ Agent memory system
-- ✅ Action planner/generator
+- ✅ Rule-based action planner
+- ✅ LLM-based action planner
 - ⏳ LangGraph workflow (planned)
 
 ## Components
@@ -121,17 +134,36 @@ You can test it using:
 python tests/test_memory.py
 ```
 
-### Action Planner
+### Action Planners
 
-The action planner generates actions based on observations and memory:
+The project includes two types of action planners that generate actions based on observations and memory:
 
-- Rule-based action generation
+#### Rule-Based Planner
+
+The rule-based planner uses predefined rules to generate actions:
+
+- Prioritized action generation based on game state
 - Action validation and correction
 - Exploration state tracking
+- Avoids repetitive actions
 
 You can test it using:
 ```
 python tests/test_planner.py
+```
+
+#### LLM-Based Planner
+
+The LLM-based planner extends the rule-based planner with more sophisticated reasoning:
+
+- Uses an LLM to generate contextually appropriate actions
+- Maintains a context window of recent game state
+- Falls back to rule-based planning when needed
+- Provides more advanced puzzle-solving capabilities
+
+You can use it by running:
+```
+python src/run_agent.py --use-llm
 ```
 
 ## License
