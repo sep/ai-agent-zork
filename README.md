@@ -68,7 +68,21 @@ This will start an interactive session where you can type commands like:
 - `help` - Show available commands
 - `quit` or `exit` - End the session
 
-*Note: The AI agent implementation is still in progress.*
+### Running the AI Agent
+
+You can run the AI agent that automatically plays Zork using:
+
+```
+python src/run_agent.py
+```
+
+This will start the agent with the rule-based planner, which will:
+- Explore the environment systematically
+- Interact with objects it encounters
+- Track its progress through the game
+- Continue until stopped (Ctrl+C)
+
+The agent will display each action it takes, the resulting observation, and its current state (location, score, inventory).
 
 ## Development Status
 
