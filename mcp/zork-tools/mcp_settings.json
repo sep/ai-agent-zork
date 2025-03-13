@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "zork-tools": {
+      "command": "node",
+      "args": ["mcp/zork-tools/build/index.js"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

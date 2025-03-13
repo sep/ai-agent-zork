@@ -41,9 +41,10 @@ def main():
     parser.add_argument(
         "--max-steps",
         type=int,
-        default=100,
-        help="Maximum number of steps to run"
+        default=20,
+        help="Maximum number of steps to run (default: 20)"
     )
+    # Loop detection is always enabled
     args = parser.parse_args()
     
     print("\n" + "="*60)
