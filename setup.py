@@ -11,9 +11,6 @@ setup(
         "pydantic>=2.0.0",
         "python-dotenv>=1.0.0",
     ],
-    extras_require={
-        "jericho": ["jericho>=3.0.0"],
-    },
     python_requires=">=3.8",
     description="An AI agent that plays the classic text adventure game Zork",
     author="AI Agent Zork Team",
