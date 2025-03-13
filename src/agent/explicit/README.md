@@ -138,7 +138,7 @@ Example tool selection response:
 
 ### MCP Integration
 
-The explicit agent uses the Model Context Protocol (MCP) to interact with tools:
+The explicit agent now uses the Model Context Protocol (MCP) by default to interact with tools:
 
 1. **Tool Definition**: Tools are defined in the MCP server with schemas
 2. **Tool Registration**: Tools are registered with the MCP server at startup
@@ -149,6 +149,7 @@ This approach provides several advantages:
 - **Standardization**: Tools follow a consistent interface
 - **Extensibility**: New tools can be added without modifying the agent
 - **Separation of Concerns**: Tool implementation is separate from agent logic
+- **Direct Tool Access**: The agent directly accesses tools through the MCP server rather than translating to text commands
 
 ### Code Implementation
 
@@ -208,8 +209,13 @@ def act(state: AgentState) -> AgentState:
     tool_name = state["tool_name"]
     tool_args = state["tool_args"]
     
-    # Execute the tool via MCP
-    result = execute_mcp_tool("zork-tools", tool_name, tool_args)
+    # Check if we can use MCP tools directly
+    if hasattr(environment, 'server_name') and HAS_MCP:
+        # Execute the tool via MCP
+        result = use_mcp_tool(environment.server_name, tool_name, tool_args)
+    else:
+        # Fall back to the mock environment if MCP is not available
+        result = environment.step(action_string)
     
     # Update the state with the action result
     state["action"] = f"{tool_name}({tool_args})"

@@ -241,8 +241,11 @@ For backward compatibility, you can also run each agent directly:
 # Implicit agent
 python src/run_implicit_agent.py
 
-# Explicit agent
+# Explicit agent (uses MCP tools by default)
 python src/run_explicit_agent.py
+
+# Explicit agent with fallback to mock environment if MCP is not available
+python src/run_explicit_agent.py --fallback-to-mock
 ```
 
 #### Implicit Agent
@@ -257,10 +260,12 @@ A detailed diagram and explanation of the implicit agent workflow can be found i
 #### Explicit Agent
 
 The explicit agent provides several advantages:
-- More structured interaction with the environment
+- More structured interaction with the environment through MCP tools
 - Clearer separation of reasoning and action
 - Better alignment with modern AI agent frameworks
-- Extensibility through the Model Context Protocol (MCP)
+- Direct integration with the Model Context Protocol (MCP)
+
+The explicit agent now uses MCP tools by default, providing a more structured way to interact with the Zork environment. It explicitly selects tools and provides parameters, rather than generating text commands directly.
 
 A detailed diagram and explanation of the explicit agent workflow can be found in [src/agent/explicit/README.md](src/agent/explicit/README.md).
 

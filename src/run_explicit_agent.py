@@ -3,15 +3,21 @@ Run the Zork AI agent with the explicit LangGraph workflow.
 
 This script runs the agent with the mock environment and explicit LangGraph workflow,
 demonstrating a more sophisticated agent architecture with tool-based interaction.
+The workflow is designed to work with MCP tools for Zork, though it currently
+uses the mock environment directly for simplicity.
 """
 import argparse
 import os
 from dotenv import load_dotenv
 from src.mock_environment import MockZorkEnvironment
+from src.mcp_environment import MCPEnvironmentWrapper
 from src.agent.explicit.workflow import run_agent_workflow
 
 # Load environment variables from .env file
 load_dotenv()
+
+# MCP server name for Zork tools
+MCP_SERVER_NAME = "zork-tools"
 
 
 def main():
@@ -44,18 +50,39 @@ def main():
         default=20,
         help="Maximum number of steps to run (default: 20)"
     )
-    # Loop detection is always enabled
+    parser.add_argument(
+        "--mcp-server",
+        type=str,
+        default="zork-tools",
+        help="Name of the MCP server to use (default: zork-tools)"
+    )
+    parser.add_argument(
+        "--fallback-to-mock",
+        action="store_true",
+        help="Fall back to mock environment if MCP server is not available"
+    )
     args = parser.parse_args()
     
     print("\n" + "="*60)
     print("ZORK AI AGENT WITH EXPLICIT TOOL-BASED WORKFLOW")
     print("="*60)
     print(f"This agent uses a LangGraph workflow with {args.model} to play Zork.")
-    print("It explicitly selects tools and provides parameters.")
+    print("It explicitly selects tools and provides parameters through the MCP server.")
     print("Press Ctrl+C to stop the agent.")
     
     # Initialize the environment
-    env = MockZorkEnvironment()
+    try:
+        print(f"Using MCP environment with server: {args.mcp_server}")
+        env = MCPEnvironmentWrapper(args.mcp_server)
+    except Exception as e:
+        if args.fallback_to_mock:
+            print(f"Error initializing MCP environment: {e}")
+            print("Falling back to mock environment.")
+            env = MockZorkEnvironment()
+        else:
+            print(f"Error initializing MCP environment: {e}")
+            print("To fall back to the mock environment, use --fallback-to-mock")
+            return
     
     try:
         # Run the agent workflow
