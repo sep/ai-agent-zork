@@ -1,7 +1,7 @@
 """
-Test script for the agent planner system.
+Test script for the rule-based planner system.
 
-This script demonstrates how the planner works with the mock environment
+This script demonstrates how the rule-based planner works with the mock environment
 and memory system. It performs a sequence of actions and shows how the
 planner generates actions based on observations and memory.
 """

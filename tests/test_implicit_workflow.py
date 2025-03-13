@@ -1,5 +1,5 @@
 """
-Unit tests for the LangGraph workflow.
+Unit tests for the implicit LangGraph workflow.
 """
 import unittest
 from unittest.mock import MagicMock, patch
@@ -12,8 +12,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.agent.implicit.workflow import create_agent_workflow, AgentState, run_agent_workflow
 
 
-class TestWorkflow(unittest.TestCase):
-    """Test cases for the LangGraph workflow."""
+class TestImplicitWorkflow(unittest.TestCase):
+    """Test cases for the implicit LangGraph workflow."""
 
     def setUp(self):
         """Set up test fixtures."""
