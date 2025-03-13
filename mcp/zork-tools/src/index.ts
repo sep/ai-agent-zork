@@ -18,6 +18,11 @@ import { handleInventory } from './tools/inventory.js';
 import { handleTake } from './tools/take.js';
 import { handleDrop } from './tools/drop.js';
 import { handleRead } from './tools/read.js';
+import { handleOpen } from './tools/open.js';
+import { handleClose } from './tools/close.js';
+import { handlePut } from './tools/put.js';
+import { handleLamp } from './tools/lamp.js';
+import { handleMove } from './tools/move.js';
 
 class ZorkToolsServer {
   private server: Server;
@@ -139,6 +144,81 @@ class ZorkToolsServer {
             type: 'object',
             properties: {}
           }
+        },
+        {
+          name: 'open',
+          description: 'Open an object like a mailbox or door',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              object: {
+                type: 'string',
+                description: 'Object to open'
+              }
+            },
+            required: ['object']
+          }
+        },
+        {
+          name: 'close',
+          description: 'Close an object like a mailbox or door',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              object: {
+                type: 'string',
+                description: 'Object to close'
+              }
+            },
+            required: ['object']
+          }
+        },
+        {
+          name: 'put',
+          description: 'Put an object into a container',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              object: {
+                type: 'string',
+                description: 'Object to put'
+              },
+              container: {
+                type: 'string',
+                description: 'Container to put the object in'
+              }
+            },
+            required: ['object', 'container']
+          }
+        },
+        {
+          name: 'lamp',
+          description: 'Turn the lamp on or off',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: {
+                type: 'string',
+                description: 'Action to perform with the lamp (on or off)',
+                enum: ['on', 'off']
+              }
+            },
+            required: ['action']
+          }
+        },
+        {
+          name: 'move',
+          description: 'Move an object like the rug',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              object: {
+                type: 'string',
+                description: 'Object to move'
+              }
+            },
+            required: ['object']
+          }
         }
       ]
     }));
@@ -161,6 +241,16 @@ class ZorkToolsServer {
             return handleRead(this.environment, request.params.arguments);
           case 'look':
             return handleLook(this.environment);
+          case 'open':
+            return handleOpen(this.environment, request.params.arguments);
+          case 'close':
+            return handleClose(this.environment, request.params.arguments);
+          case 'put':
+            return handlePut(this.environment, request.params.arguments);
+          case 'lamp':
+            return handleLamp(this.environment, request.params.arguments);
+          case 'move':
+            return handleMove(this.environment, request.params.arguments);
           default:
             throw new McpError(
               ErrorCode.MethodNotFound,

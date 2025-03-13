@@ -370,7 +370,7 @@ export class MockZorkEnvironment {
 
   private _hasLight(): boolean {
     // Check if the player has a light source
-    return this.inventory.includes("lamp") && this.object_states["lamp"].on;
+    return this.inventory.includes("lamp") && this.object_states["lamp"]?.on === true;
   }
 
   private _processAction(action: string): string {
