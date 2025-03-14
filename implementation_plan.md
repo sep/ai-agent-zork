@@ -73,29 +73,35 @@ Benefits of this approach:
 - Robust error handling with fallback mechanisms
 - No need for intermediate code generation steps
 
-## Current Implementation: LangView Integration
+## Current Implementation: LangSmith Integration
 
-1. **Integrate LangView** (In Progress)
-   - 🔄 Set up LangView for workflow visualization:
-     - Install and configure LangView
-     - Set up the necessary dependencies
-     - Create basic visualization configuration
-   - 🔄 Configure tracing for the LangGraph workflow:
-     - Add tracing hooks to the LangGraph workflow
-     - Ensure all relevant steps are captured
-     - Configure appropriate detail level for traces
-   - 🔄 Add instrumentation to capture agent reasoning:
-     - Instrument the agent's thought process
-     - Capture tool selection and execution
-     - Record observations and state changes
-   - 🔄 Create visualization dashboard:
-     - Design informative visualizations
-     - Create interactive dashboard
-     - Ensure usability and clarity
-   - 🔄 Document LangView integration:
-     - Create usage documentation
-     - Provide examples of common visualization tasks
-     - Explain how to interpret the visualizations
+1. ✅ **Integrate LangSmith**
+   - ✅ Set up LangSmith for workflow visualization:
+     - Added LangSmith client and tracer initialization
+     - Configured environment variables for LangSmith
+     - Created documentation for LangSmith setup
+   - ✅ Configure tracing for the LangGraph workflows:
+     - Added tracing hooks to both LangGraph workflows (regular and MCP)
+     - Fixed issue with tracer not being used in regular LangGraph workflow
+     - Ensured callbacks are properly passed to workflow execution
+   - ✅ Add instrumentation to capture agent reasoning:
+     - Instrumented the agent's thought process
+     - Captured tool selection and execution
+     - Recorded observations and state changes
+   - ✅ Document LangSmith integration:
+     - Created usage documentation in README_langsmith.md files
+     - Provided examples of how to enable tracing
+     - Explained how to view and interpret traces
+
+### LangSmith Integration Details
+
+The LangSmith integration provides visualization and debugging capabilities for the agent workflows:
+
+- **Tracing Implementation**: Both LangGraph workflows now properly initialize and use the LangSmith tracer. The tracer is added to a callbacks list and passed to the workflow execution via the config parameter.
+- **Fixed Issues**: Resolved an issue where the tracer was initialized but never used in the regular LangGraph workflow, which caused a warning message.
+- **Consistent Implementation**: Both the regular LangGraph and MCP-LangGraph implementations now use the same pattern for tracing.
+- **Configuration Options**: Added command-line arguments to enable LangSmith tracing and specify the project name.
+- **Environment Variables**: Documented the required environment variables (LANGSMITH_API_KEY, LANGSMITH_TRACING) in the README files.
 
 ## Future Implementation Steps
 
@@ -123,10 +129,10 @@ Benefits of this approach:
    - Clear warning messages for error conditions
    - Singleton MCP client for efficient server communication
 
-2. **LangView Integration**
-   - Determine the appropriate level of instrumentation
-   - Balance performance with observability
-   - Consider privacy and security implications
+2. **LangSmith Integration**
+   - Proper instrumentation of all workflow components
+   - Balance between detail and performance
+   - Consistent tracing implementation across agents
 
 3. **Real Environment Integration**
    - Handle differences between mock and real environments

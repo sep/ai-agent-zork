@@ -232,7 +232,9 @@ def run_agent_workflow(
     environment: Any,
     model_name: str = "gpt-3.5-turbo",
     api_key: Optional[str] = None,
-    max_steps: int = 100
+    max_steps: int = 100,
+    enable_langsmith: bool = False,
+    langsmith_project: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Run the agent workflow with the given environment.
@@ -242,12 +244,50 @@ def run_agent_workflow(
         model_name: The name of the LLM model to use
         api_key: The API key for the LLM provider
         max_steps: The maximum number of steps to run
+        enable_langsmith: Whether to enable LangSmith tracing
+        langsmith_project: LangSmith project name
         
     Returns:
         The final state
     """
     # Create the workflow
     workflow = create_agent_workflow(model_name, api_key)
+    
+    # Set up LangSmith tracing if enabled
+    callbacks = []
+    if enable_langsmith:
+        try:
+            from langsmith import Client
+            from langchain_core.tracers import LangChainTracer
+            
+            # Get the LangSmith API key from environment variables
+            langsmith_api_key = os.environ.get("LANGSMITH_API_KEY")
+            if not langsmith_api_key:
+                print("Warning: LANGSMITH_API_KEY not found in environment variables.")
+                print("LangSmith tracing may not work correctly.")
+            
+            # Set up the LangSmith client and tracer
+            Client(
+                api_key=langsmith_api_key
+            )  # Initialize client
+            tracer = LangChainTracer(project_name=langsmith_project)
+            callbacks.append(tracer)
+            
+            # Ensure LANGSMITH_TRACING is set
+            os.environ["LANGSMITH_TRACING"] = "true"
+            
+            print(f"LangSmith tracing enabled. Project: {langsmith_project or 'default'}")
+        except ImportError:
+            print("Warning: LangSmith tracing requested but langsmith package not installed.")
+            print("Install with: pip install langsmith")
+        except Exception as e:
+            print(f"Warning: Failed to initialize LangSmith tracing: {e}")
+            print("Make sure LANGSMITH_API_KEY is set in your environment.")
+    
+    # Compile the workflow with callbacks
+    config = {
+        "callbacks": callbacks if callbacks else None
+    }
     app = workflow.compile()
     
     # Initialize the environment
@@ -274,8 +314,8 @@ def run_agent_workflow(
         print(f"STEP {step + 1}")
         print(f"{'='*60}")
         
-        # Run one step of the workflow
-        result = app.invoke(agent_state)
+        # Run one step of the workflow with callbacks
+        result = app.invoke(agent_state, config=config)
         
         # Check if the workflow has ended
         if "end" in result:

@@ -42,6 +42,17 @@ def main():
         default=100,
         help="Maximum number of steps to run"
     )
+    parser.add_argument(
+        "--enable-langsmith",
+        action="store_true",
+        help="Enable LangSmith tracing for visualization and debugging"
+    )
+    parser.add_argument(
+        "--langsmith-project",
+        type=str,
+        default=os.environ.get("LANGSMITH_PROJECT"),
+        help="LangSmith project name (defaults to LANGSMITH_PROJECT env var)"
+    )
     args = parser.parse_args()
     
     print("\n" + "="*60)
@@ -53,13 +64,24 @@ def main():
     # Initialize the environment
     env = MockZorkEnvironment()
     
+    # Print LangSmith info if enabled
+    if args.enable_langsmith:
+        print("LangSmith tracing enabled.")
+        print(f"Project: {args.langsmith_project or 'default (from LANGSMITH_PROJECT env var)'}")
+        print("Make sure the following environment variables are set:")
+        print("  - LANGSMITH_TRACING=true")
+        print("  - LANGSMITH_API_KEY=your-api-key")
+        print("View traces at: https://smith.langchain.com")
+    
     try:
         # Run the agent workflow
         run_agent_workflow(
             environment=env,
             model_name=args.model,
             api_key=args.api_key,
-            max_steps=args.max_steps
+            max_steps=args.max_steps,
+            enable_langsmith=args.enable_langsmith,
+            langsmith_project=args.langsmith_project
         )
     except KeyboardInterrupt:
         print("\nAgent stopped by user.")

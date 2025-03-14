@@ -272,7 +272,9 @@ def create_agent_workflow(
             Example for put: {"tool": "put", "args": {"object": "leaflet", "container": "mailbox"}}
             """
             
-            valid_tool_names = ["navigate", "examine", "take", "drop", "inventory", "read", "look", "open", "close", "put"]
+            # List of valid tool names for validation
+            valid_tool_names = ["navigate", "examine", "take", "drop", "inventory", 
+                               "read", "look", "open", "close", "put"]
         
         # Create a prompt for the LLM with more detailed instructions
         prompt = f"""
@@ -632,7 +634,9 @@ def run_agent_workflow(
     model_name: str = "gpt-3.5-turbo",
     api_key: Optional[str] = None,
     max_steps: int = 20,
-    recursion_limit: int = 100
+    recursion_limit: int = 100,
+    enable_langsmith: bool = False,
+    langsmith_project: Optional[str] = None
 ) -> None:
     """
     Run the agent workflow.
@@ -643,6 +647,8 @@ def run_agent_workflow(
         api_key: The API key for the LLM provider
         max_steps: Maximum number of steps to run
         recursion_limit: Maximum recursion depth for the LangGraph workflow
+        enable_langsmith: Whether to enable LangSmith tracing
+        langsmith_project: LangSmith project name
     """
     # Create the workflow
     workflow, initial_state = create_agent_workflow(
@@ -652,10 +658,44 @@ def run_agent_workflow(
         max_steps=max_steps
     )
     
+    # Set up LangSmith tracing if enabled
+    callbacks = []
+    if enable_langsmith:
+        try:
+            from langsmith import Client
+            from langchain_core.tracers import LangChainTracer
+            
+            # Get the LangSmith API key from environment variables
+            langsmith_api_key = os.environ.get("LANGSMITH_API_KEY")
+            if not langsmith_api_key:
+                print("Warning: LANGSMITH_API_KEY not found in environment variables.")
+                print("LangSmith tracing may not work correctly.")
+            
+            # Set up the LangSmith client
+            client = Client(
+                api_key=langsmith_api_key
+            )
+            tracer = LangChainTracer(project_name=langsmith_project)
+            callbacks.append(tracer)
+            
+            # Ensure LANGSMITH_TRACING is set
+            os.environ["LANGSMITH_TRACING"] = "true"
+            
+            print(f"LangSmith tracing enabled. Project: {langsmith_project or 'default'}")
+        except ImportError:
+            print("Warning: LangSmith tracing requested but langsmith package not installed.")
+            print("Install with: pip install langsmith")
+        except Exception as e:
+            print(f"Warning: Failed to initialize LangSmith tracing: {e}")
+            print("Make sure LANGSMITH_API_KEY is set in your environment.")
+    
     # Run the workflow
     print("Starting workflow...")
-    # Create a config dictionary with the recursion limit
-    config = {"recursion_limit": recursion_limit}
+    # Create a config dictionary with the recursion limit and callbacks
+    config = {
+        "recursion_limit": recursion_limit,
+        "callbacks": callbacks if callbacks else None
+    }
     for i, state in enumerate(workflow.stream(initial_state, config=config)):
         node = state.get("__metadata__", {}).get("name", "")
         print(f"Processing node: {node}")

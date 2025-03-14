@@ -4,3 +4,6 @@ langchain>=0.0.267
 langchain-openai>=0.0.2
 pydantic>=2.0.0
 python-dotenv>=1.0.0
+
+# Visualization and tracing
+langsmith>=0.3.14
