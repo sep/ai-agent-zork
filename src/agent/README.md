@@ -1,83 +1,113 @@
 # Agent Components
 
-This directory contains the core components of the Zork AI agent.
+This directory contains the core components of the Zork AI agent system.
 
-## Memory System (memory.py)
+## Overview
+
+The agent system is composed of several key components:
+
+1. **Memory System** - Stores and retrieves the agent's experiences in the game world
+2. **Planner** - Generates actions based on observations and memory
+3. **Agent Implementations** - Different approaches to implementing the agent
+
+## Agent Implementations
+
+We have implemented three different agent architectures to demonstrate the evolution of AI agent design:
+
+### LangGraph Agent
+
+Located in `langgraph/` directory, this agent:
+- Uses LangGraph to structure the agent's workflow
+- Generates text commands directly (e.g., "go north", "take lamp")
+- Does not use MCP, instead interacting with a mock environment
+- Follows an observe-think-act loop
+
+See [langgraph/README.md](langgraph/README.md) for more details.
+
+### MCP LangGraph Agent
+
+Located in `mcp_langgraph/` directory, this agent:
+- Combines LangGraph for workflow structure with MCP for tool-based interaction
+- Selects specific MCP tools and provides parameters
+- Provides more structured interaction with the environment
+- Follows an observe-think-select_tool-act loop
+
+See [mcp_langgraph/README.md](mcp_langgraph/README.md) for more details.
+
+### MCP Agent
+
+Located in `mcp/` directory, this agent:
+- Uses MCP directly without LangGraph
+- Follows a deliberative process of thinking then acting
+- Lacks the structured workflow that LangGraph provides
+- Simpler implementation but less structured
+
+See [mcp/README.md](mcp/README.md) for more details.
+
+## Core Components
+
+### Memory System
 
 The memory system is responsible for storing and retrieving the agent's experiences in the game world. It provides a foundation for the agent's decision-making process by maintaining a record of observations, actions, locations, and inventory.
 
-### Key Features
+See [README_memory.md](README_memory.md) for more details.
 
-- **Raw Memory Storage**: Chronological record of all observations and actions
-- **State Tracking**: Current location, score, moves, and inventory
-- **History Retrieval**: Access to recent interactions and visited locations
-- **Inventory Management**: Tracking of collected items
+### Planner
 
-### Usage Example
+The planner component is responsible for generating actions based on observations and memory, and validating them against the environment's valid actions.
 
-```python
-from src.mock_environment import MockZorkEnvironment
-from src.agent.memory import AgentMemory
+See [README_planner.md](README_planner.md) for more details.
 
-# Initialize environment and memory
-env = MockZorkEnvironment()
-memory = AgentMemory()
+## Usage
 
-# Get initial state and add to memory
-state = env.reset()
-memory.add_observation(state["observation"], state)
+Each agent implementation has its own runner script:
 
-# Perform an action
-action = "look"
-result = env.step(action)
+```bash
+# Run the LangGraph agent
+python src/run_langgraph_agent.py
 
-# Record the action and its result
-memory.add_action(action, result)
-memory.add_observation(result["observation"], result)
+# Run the MCP LangGraph agent
+python src/run_mcp_langgraph_agent.py
 
-# Check inventory
-if action.lower() in ["inventory", "i"]:
-    memory.update_inventory(result["inventory"])
-
-# Retrieve recent history
-recent_history = memory.get_recent_history(5)
-for item in recent_history:
-    print(f"[{item['type']}] {item['content']}")
-
-# Get location history
-locations = memory.get_location_history()
-print(f"Visited locations: {locations}")
-
-# Get inventory
-inventory = memory.get_inventory()
-print(f"Inventory: {inventory}")
+# Run the MCP agent
+python src/run_mcp_agent.py
 ```
 
-### Design Approach
+You can also use the unified runner:
 
-The memory system is implemented using a bottom-up approach:
+```bash
+# Run the LangGraph agent
+python src/run_zork_agent.py --agent-type langgraph
 
-1. **Basic Storage Layer**: Raw storage of observations and actions
-2. **State Tracking Layer**: Tracking of game state (location, score, inventory)
-3. **Retrieval Layer**: Methods to access and query stored information
+# Run the MCP LangGraph agent
+python src/run_zork_agent.py --agent-type mcp_langgraph
 
-This layered approach allows for incremental development and testing, with each layer building on the functionality of the previous ones.
-
-### Future Enhancements
-
-In future iterations, the memory system will be extended with:
-
-- **Semantic Memory**: Understanding of game objects and their properties
-- **Spatial Memory**: Improved mapping of the game world
-- **Embeddings**: Vector representations for semantic search
-- **Knowledge Graph**: Structured representation of game entities and relationships
+# Run the MCP agent
+python src/run_zork_agent.py --agent-type mcp
+```
 
 ## Testing
 
-You can test the memory system using the provided test script:
+Each component and agent implementation has its own test file:
 
-```
+```bash
+# Test the memory system
 python tests/test_memory.py
+
+# Test the planner
+python tests/test_planner.py
+
+# Test the LangGraph agent
+python tests/test_langgraph_workflow.py
+
+# Test the MCP LangGraph agent
+python tests/test_mcp_langgraph_workflow.py
+
+# Test the MCP agent
+python tests/test_mcp_agent.py
 ```
 
-This script demonstrates how the memory system interacts with the mock environment and shows the information it tracks.
+You can run all tests with:
+
+```bash
+python -m unittest discover tests

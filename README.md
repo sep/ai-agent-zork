@@ -93,11 +93,14 @@ The rule-based agent doesn't require an LLM or API key.
 For more sophisticated agents that use LLMs, you can use the unified runner:
 
 ```
-# Run the langgraph agent (generates text commands directly)
+# Run the LangGraph agent (generates text commands directly)
 python src/run_zork_agent.py --agent-type langgraph
 
-# Run the mcp-langgraph agent (uses tools with structured parameters)
+# Run the MCP-LangGraph agent (uses tools with structured parameters)
 python src/run_zork_agent.py --agent-type mcp_langgraph
+
+# Run the MCP agent (uses MCP directly without LangGraph)
+python src/run_zork_agent.py --agent-type mcp
 ```
 
 You can specify which LLM model to use with the `--model` flag:
@@ -130,7 +133,7 @@ The LLM-based planner requires an OpenAI API key to function. You can provide th
 
 3. Pass the API key directly as a command-line argument:
    ```
-python src/run_zork_agent.py --agent-type langgraph --api-key your-api-key-here
+   python src/run_zork_agent.py --agent-type langgraph --api-key your-api-key-here
    ```
 
 If no API key is provided, the LLM-based agents will attempt to use the environment variable.
@@ -204,14 +207,14 @@ The LLM-based planner extends the rule-based planner with more sophisticated rea
 - Falls back to rule-based planning when needed
 - Provides more advanced puzzle-solving capabilities
 
-You can use it with the langgraph agent:
+You can use it with any of the LLM-based agents:
 ```
 python src/run_zork_agent.py --agent-type langgraph
 ```
 
 ### Agent Architectures
 
-This project implements two different agent architectures to demonstrate the evolution of AI agent design:
+This project implements three different agent architectures to demonstrate the evolution of AI agent design:
 
 #### LangGraph Agent
 
@@ -221,34 +224,15 @@ The LangGraph agent uses a LangGraph workflow with an observe-think-act loop:
 - Implicit reasoning about available actions
 - Natural language command generation
 
-You can run either agent type using the unified runner:
+You can run this agent using:
 
 ```
-# Run the langgraph agent (default)
+# Using the unified runner
 python src/run_zork_agent.py --agent-type langgraph
 
-# Run the mcp-langgraph agent
-python src/run_zork_agent.py --agent-type mcp_langgraph
-```
-
-You can specify which LLM model to use with the `--model` flag:
-```
-python src/run_zork_agent.py --agent-type langgraph --model gpt-4
-```
-
-For backward compatibility, you can also run each agent directly:
-```
-# LangGraph agent
+# Using the dedicated runner
 python src/run_langgraph_agent.py
-
-# MCP-LangGraph agent (uses MCP tools by default)
-python src/run_mcp_langgraph_agent.py
-
-# MCP-LangGraph agent with fallback to mock environment if MCP is not available
-python src/run_mcp_langgraph_agent.py --fallback-to-mock
 ```
-
-#### LangGraph Agent
 
 The LangGraph agent provides:
 - Transparent reasoning (thoughts are displayed)
@@ -259,15 +243,57 @@ A detailed diagram and explanation of the LangGraph agent workflow can be found 
 
 #### MCP-LangGraph Agent
 
+The MCP-LangGraph agent combines LangGraph for workflow structure with MCP for tool-based interaction:
+
+- Selects specific MCP tools and provides parameters
+- Follows an observe-think-select_tool-act loop
+- Provides more structured interaction with the environment
+
+You can run this agent using:
+
+```
+# Using the unified runner
+python src/run_zork_agent.py --agent-type mcp_langgraph
+
+# Using the dedicated runner
+python src/run_mcp_langgraph_agent.py
+
+# With fallback to mock environment if MCP is not available
+python src/run_mcp_langgraph_agent.py --fallback-to-mock
+```
+
 The MCP-LangGraph agent provides several advantages:
 - More structured interaction with the environment through MCP tools
 - Clearer separation of reasoning and action
 - Better alignment with modern AI agent frameworks
 - Direct integration with the Model Context Protocol (MCP)
 
-The MCP-LangGraph agent uses MCP tools by default, providing a more structured way to interact with the Zork environment. It explicitly selects tools and provides parameters, rather than generating text commands directly.
-
 A detailed diagram and explanation of the MCP-LangGraph agent workflow can be found in [src/agent/mcp_langgraph/README.md](src/agent/mcp_langgraph/README.md).
+
+#### MCP Agent
+
+The MCP agent uses MCP directly without LangGraph:
+
+- Follows a deliberative process of thinking then acting
+- Uses MCP tools to interact with the environment
+- Simpler implementation but less structured workflow
+
+You can run this agent using:
+
+```
+# Using the unified runner
+python src/run_zork_agent.py --agent-type mcp
+
+# Using the dedicated runner
+python src/run_mcp_agent.py
+```
+
+The MCP agent provides:
+- Direct use of MCP tools without the LangGraph workflow
+- Two-step process: deliberation followed by action selection
+- Simpler implementation compared to the LangGraph-based agents
+
+A detailed explanation of the MCP agent can be found in [src/agent/mcp/README.md](src/agent/mcp/README.md).
 
 ## License
 
