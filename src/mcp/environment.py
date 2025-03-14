@@ -5,6 +5,9 @@ This module provides a wrapper for MCP tools to provide an environment-like inte
 that matches the MockZorkEnvironment interface.
 """
 from typing import Any, Dict, List, Optional
+import json
+
+from src.mcp.client import create_zork_client
 
 
 class MCPEnvironmentWrapper:
@@ -16,20 +19,23 @@ class MCPEnvironmentWrapper:
     without changing the agent code.
     """
     
-    def __init__(self, server_name: str):
+    def __init__(self, server_name: str, debug: bool = False):
         """
         Initialize the MCP environment wrapper.
         
         Args:
             server_name: The name of the MCP server to use
+            debug: Whether to print debug information
         """
         self.server_name = server_name
+        self.debug = debug
         self.score = 0
         self.moves = 0
         self.current_location = ""
         self.inventory = []
         self.valid_actions = []
         self.done = False
+        self._client = None
     
     def reset(self) -> Dict[str, Any]:
         """
@@ -39,13 +45,7 @@ class MCPEnvironmentWrapper:
             A dictionary with the initial state
         """
         # Call the look tool to get the initial state
-        from langchain_core.utils.function_calling import convert_to_openai_function
-        
-        # Use the MCP tool to look around
         try:
-            from langchain.tools import Tool
-            from langchain.agents import AgentExecutor
-            
             # Call the look tool
             result = self._use_mcp_tool("look", {})
             
@@ -283,127 +283,38 @@ class MCPEnvironmentWrapper:
         Returns:
             The result of the tool execution
         """
-        import json
+        # Create the client if it doesn't exist
+        if self._client is None:
+            self._client = create_zork_client(debug=self.debug)
+            if not self._client.start():
+                raise Exception(f"Failed to start MCP server: {self.server_name}")
         
-        # Format the arguments as a JSON string
-        args_json = json.dumps(args)
+        # Call the tool
+        result = self._client.call_tool(tool_name, args)
         
-        # Use the use_mcp_tool function to call the MCP tool
-        from langchain.tools import Tool
-        
-        # This is the actual MCP tool call
-        result = use_mcp_tool(
-            server_name=self.server_name,
-            tool_name=tool_name,
-            arguments=args_json
-        )
+        if not result:
+            raise Exception(f"Error calling tool {tool_name}: No result")
         
         return result
+    
+    def __del__(self):
+        """
+        Clean up resources when the object is deleted.
+        """
+        if self._client is not None:
+            self._client.stop()
+            self._client = None
 
 
-def use_mcp_tool(server_name: str, tool_name: str, arguments: str) -> Dict[str, Any]:
+def create_environment(server_name: str = "zork-tools", debug: bool = False) -> MCPEnvironmentWrapper:
     """
-    Use an MCP tool.
+    Create an MCP environment wrapper for the specified server.
     
     Args:
-        server_name: The name of the MCP server
-        tool_name: The name of the tool to use
-        arguments: The arguments to pass to the tool, as a JSON string
+        server_name: The name of the MCP server to use
+        debug: Whether to print debug information
         
     Returns:
-        The result of the tool execution
+        An MCP environment wrapper
     """
-    # Import here to avoid circular imports
-    import json
-    
-    # Parse the arguments
-    args = json.loads(arguments) if arguments else {}
-    
-    try:
-        # Try to use the actual MCP SDK
-        try:
-            # Import the MCP SDK
-            from langchain.tools import use_mcp_tool as langchain_use_mcp_tool
-            
-            # Call the MCP tool
-            result = langchain_use_mcp_tool(
-                server_name=server_name,
-                tool_name=tool_name,
-                arguments=args
-            )
-            
-            return result
-        except ImportError:
-            # If the MCP SDK is not available, fall back to our mock implementation
-            print("MCP SDK not available, falling back to mock implementation")
-            
-            # Create a mock result based on the tool name and args
-            if tool_name == "look":
-                result = {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "You are in a mock environment. This is a simulated MCP tool call."
-                        }
-                    ]
-                }
-            elif tool_name == "inventory":
-                result = {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "You are carrying nothing."
-                        },
-                        {
-                            "type": "json",
-                            "json": {
-                                "items": []
-                            }
-                        }
-                    ]
-                }
-            elif tool_name == "navigate":
-                direction = args.get("direction", "nowhere")
-                result = {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"You move {direction}."
-                        }
-                    ]
-                }
-            elif tool_name == "examine":
-                obj = args.get("object", "nothing")
-                result = {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"You examine the {obj}. It looks like a mock object."
-                        }
-                    ]
-                }
-            else:
-                # Default response for other tools
-                result = {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"You use the {tool_name} tool with args: {args}"
-                        }
-                    ]
-                }
-            
-            return result
-    except Exception as e:
-        # If there's an error, return an error message
-        print(f"Error using MCP tool: {e}")
-        return {
-            "content": [
-                {
-                    "type": "text",
-                    "text": f"Error using MCP tool: {e}"
-                }
-            ]
-        }
-    
-    return result
+    return MCPEnvironmentWrapper(server_name, debug)

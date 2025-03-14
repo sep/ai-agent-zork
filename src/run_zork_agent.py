@@ -8,7 +8,7 @@ import argparse
 import os
 from dotenv import load_dotenv
 from src.mock_environment import MockZorkEnvironment
-from src.mcp_environment import MCPEnvironmentWrapper
+from src.mcp.environment import create_environment
 from src.agent.implicit.workflow import run_agent_workflow as run_implicit_workflow
 from src.agent.explicit.workflow import run_agent_workflow as run_explicit_workflow
 
@@ -84,7 +84,7 @@ def main():
         # Initialize the environment for explicit agent
         try:
             print(f"Using MCP environment with server: {args.mcp_server}")
-            env = MCPEnvironmentWrapper(args.mcp_server)
+            env = create_environment(server_name=args.mcp_server, debug=True)
         except Exception as e:
             if args.fallback_to_mock:
                 print(f"Error initializing MCP environment: {e}")
