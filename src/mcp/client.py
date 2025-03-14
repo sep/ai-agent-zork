@@ -219,6 +219,51 @@ def create_zork_client(debug: bool = False) -> MCPClient:
 # Singleton MCP client for reuse across tool calls
 _mcp_client = None
 
+def get_mcp_client(server_name: str = "zork-tools", debug: bool = False) -> MCPClient:
+    """
+    Get or create the singleton MCP client.
+    
+    Args:
+        server_name: The name of the MCP server to use
+        debug: Whether to print debug information
+        
+    Returns:
+        The singleton MCP client
+    """
+    global _mcp_client
+    
+    # Create and start the MCP client if it doesn't exist
+    if _mcp_client is None:
+        print("Creating and starting MCP client...")
+        _mcp_client = create_zork_client(debug=debug)
+        
+        # Start the MCP server
+        if not _mcp_client.start():
+            raise Exception(f"Failed to start MCP server: {server_name}")
+    
+    return _mcp_client
+
+def get_mcp_tools(server_name: str = "zork-tools", debug: bool = False) -> List[Dict[str, Any]]:
+    """
+    Get the available tools from the MCP server.
+    
+    Args:
+        server_name: The name of the MCP server to use
+        debug: Whether to print debug information
+        
+    Returns:
+        A list of available tools with their descriptions and parameters
+    """
+    client = get_mcp_client(server_name, debug)
+    
+    # Get the list of tools
+    tools = client.list_tools()
+    if not tools:
+        print("Warning: No tools found on MCP server")
+        return []
+    
+    return tools
+
 def use_mcp_tool(server_name: str, tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
     """
     Use an MCP tool directly.

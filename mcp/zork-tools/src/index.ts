@@ -71,7 +71,17 @@ class ZorkToolsServer {
               }
             },
             required: ['direction']
-          }
+          },
+          examples: [
+            {
+              name: 'Go north',
+              args: { direction: 'north' }
+            },
+            {
+              name: 'Go up',
+              args: { direction: 'up' }
+            }
+          ]
         },
         {
           name: 'examine',
@@ -85,7 +95,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Examine mailbox',
+              args: { object: 'mailbox' }
+            },
+            {
+              name: 'Examine leaflet',
+              args: { object: 'leaflet' }
+            }
+          ]
         },
         {
           name: 'inventory',
@@ -93,7 +113,13 @@ class ZorkToolsServer {
           inputSchema: {
             type: 'object',
             properties: {}
-          }
+          },
+          examples: [
+            {
+              name: 'Check inventory',
+              args: {}
+            }
+          ]
         },
         {
           name: 'take',
@@ -107,7 +133,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Take leaflet',
+              args: { object: 'leaflet' }
+            },
+            {
+              name: 'Take sword',
+              args: { object: 'sword' }
+            }
+          ]
         },
         {
           name: 'drop',
@@ -121,7 +157,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Drop leaflet',
+              args: { object: 'leaflet' }
+            },
+            {
+              name: 'Drop sword',
+              args: { object: 'sword' }
+            }
+          ]
         },
         {
           name: 'read',
@@ -135,7 +181,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Read leaflet',
+              args: { object: 'leaflet' }
+            },
+            {
+              name: 'Read sign',
+              args: { object: 'sign' }
+            }
+          ]
         },
         {
           name: 'look',
@@ -143,7 +199,13 @@ class ZorkToolsServer {
           inputSchema: {
             type: 'object',
             properties: {}
-          }
+          },
+          examples: [
+            {
+              name: 'Look around',
+              args: {}
+            }
+          ]
         },
         {
           name: 'open',
@@ -157,7 +219,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Open mailbox',
+              args: { object: 'mailbox' }
+            },
+            {
+              name: 'Open door',
+              args: { object: 'door' }
+            }
+          ]
         },
         {
           name: 'close',
@@ -171,7 +243,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Close mailbox',
+              args: { object: 'mailbox' }
+            },
+            {
+              name: 'Close door',
+              args: { object: 'door' }
+            }
+          ]
         },
         {
           name: 'put',
@@ -189,7 +271,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object', 'container']
-          }
+          },
+          examples: [
+            {
+              name: 'Put leaflet in mailbox',
+              args: { object: 'leaflet', container: 'mailbox' }
+            },
+            {
+              name: 'Put sword in case',
+              args: { object: 'sword', container: 'case' }
+            }
+          ]
         },
         {
           name: 'lamp',
@@ -204,7 +296,17 @@ class ZorkToolsServer {
               }
             },
             required: ['action']
-          }
+          },
+          examples: [
+            {
+              name: 'Turn lamp on',
+              args: { action: 'on' }
+            },
+            {
+              name: 'Turn lamp off',
+              args: { action: 'off' }
+            }
+          ]
         },
         {
           name: 'move',
@@ -218,7 +320,17 @@ class ZorkToolsServer {
               }
             },
             required: ['object']
-          }
+          },
+          examples: [
+            {
+              name: 'Move rug',
+              args: { object: 'rug' }
+            },
+            {
+              name: 'Move rock',
+              args: { object: 'rock' }
+            }
+          ]
         }
       ]
     }));

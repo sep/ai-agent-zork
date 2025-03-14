@@ -8,11 +8,11 @@ then selecting a tool and parameters based on that thought.
 import os
 import time
 import json
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from src.mcp.client import use_mcp_tool
+from src.mcp.client import use_mcp_tool, get_mcp_tools
 
 # Load environment variables from .env file
 load_dotenv()
@@ -187,6 +187,92 @@ def select_tool(client: OpenAI, model_name: str, game_state: Dict[str, Any],
     Returns:
         A tuple of (tool_name, tool_args)
     """
+    # Get the available tools from the MCP server
+    tools = get_mcp_tools(MCP_SERVER_NAME)
+    
+    # Build the tool descriptions
+    tool_descriptions = ""
+    tool_examples = ""
+    valid_tool_names = []
+    
+    for tool in tools:
+        # Add the tool description
+        tool_name = tool.get("name", "")
+        if not tool_name:
+            continue
+            
+        valid_tool_names.append(tool_name)
+        description = tool.get("description", "")
+        tool_descriptions += f"- {tool_name}: {description}\n"
+        
+        # Get examples from the tool definition if available
+        examples = tool.get("examples", [])
+        if examples:
+            for example in examples:
+                # Add the example to the prompt
+                example_json = {
+                    "tool": tool_name,
+                    "args": example.get("args", {})
+                }
+                example_name = example.get("name", f"Example for {tool_name}")
+                tool_examples += f"{example_name}: {json.dumps(example_json)}\n"
+        else:
+            # If no examples are provided, generate one based on the schema
+            input_schema = tool.get("inputSchema", {})
+            properties = input_schema.get("properties", {})
+            required = input_schema.get("required", [])
+            
+            # Build the example arguments
+            example_args = {}
+            for param_name, param_schema in properties.items():
+                if param_name in required:
+                    # Use an example value based on the parameter name
+                    if param_name == "direction":
+                        example_args[param_name] = "north"
+                    elif param_name == "object":
+                        example_args[param_name] = "mailbox"
+                    elif param_name == "container":
+                        example_args[param_name] = "mailbox"
+                    else:
+                        example_args[param_name] = "example"
+            
+            # Add the example to the prompt
+            example = {
+                "tool": tool_name,
+                "args": example_args
+            }
+            tool_examples += f"Example for {tool_name}: {json.dumps(example)}\n"
+    
+    # If no tools were found, use default tools
+    if not tools:
+        tool_descriptions = """
+        - navigate: Move in a specified direction (north, south, east, west, up, down)
+        - examine: Examine an object in the environment
+        - take: Take an object
+        - drop: Drop an object from your inventory
+        - inventory: Check your inventory
+        - read: Read an object with text
+        - look: Look around to get a description of your surroundings
+        - open: Open a container or door
+        - close: Close a container or door
+        - put: Put an object into a container
+        """
+        
+        tool_examples = """
+        Example for navigate: {"tool": "navigate", "args": {"direction": "north"}}
+        Example for examine: {"tool": "examine", "args": {"object": "mailbox"}}
+        Example for take: {"tool": "take", "args": {"object": "leaflet"}}
+        Example for drop: {"tool": "drop", "args": {"object": "sword"}}
+        Example for inventory: {"tool": "inventory", "args": {}}
+        Example for read: {"tool": "read", "args": {"object": "leaflet"}}
+        Example for look: {"tool": "look", "args": {}}
+        Example for open: {"tool": "open", "args": {"object": "mailbox"}}
+        Example for close: {"tool": "close", "args": {"object": "mailbox"}}
+        Example for put: {"tool": "put", "args": {"object": "leaflet", "container": "mailbox"}}
+        """
+        
+        valid_tool_names = ["navigate", "examine", "take", "drop", "inventory", "read", "look", "open", "close", "put"]
+    
     prompt = f"""
     You are an expert text adventure game player. You are playing Zork.
     
@@ -203,29 +289,11 @@ def select_tool(client: OpenAI, model_name: str, game_state: Dict[str, Any],
     {thought}
     
     Available Tools:
-    - navigate: Move in a specified direction (north, south, east, west, up, down)
-    - examine: Examine an object in the environment
-    - take: Take an object
-    - drop: Drop an object from your inventory
-    - inventory: Check your inventory
-    - read: Read an object with text
-    - look: Look around to get a description of your surroundings
-    - open: Open a container or door
-    - close: Close a container or door
-    - put: Put an object into a container
+    {tool_descriptions}
     
     Select the most appropriate tool and provide its parameters in JSON format.
     
-    Example for navigate: {{"tool": "navigate", "args": {{"direction": "north"}}}}
-    Example for examine: {{"tool": "examine", "args": {{"object": "mailbox"}}}}
-    Example for take: {{"tool": "take", "args": {{"object": "leaflet"}}}}
-    Example for drop: {{"tool": "drop", "args": {{"object": "sword"}}}}
-    Example for inventory: {{"tool": "inventory", "args": {{}}}}
-    Example for read: {{"tool": "read", "args": {{"object": "leaflet"}}}}
-    Example for look: {{"tool": "look", "args": {{}}}}
-    Example for open: {{"tool": "open", "args": {{"object": "mailbox"}}}}
-    Example for close: {{"tool": "close", "args": {{"object": "mailbox"}}}}
-    Example for put: {{"tool": "put", "args": {{"object": "leaflet", "container": "mailbox"}}}}
+    {tool_examples}
     
     Your response must be valid JSON with a "tool" field and an "args" object containing the required parameters.
     
@@ -256,24 +324,38 @@ def select_tool(client: OpenAI, model_name: str, game_state: Dict[str, Any],
         tool_args = parsed.get("args", {})
         
         # Validate the tool name
-        if tool_name not in ["navigate", "examine", "take", "drop", "inventory", "read", "look", "open", "close", "put"]:
+        if tool_name not in valid_tool_names:
             print(f"Invalid tool name: {tool_name}, defaulting to look")
             tool_name = "look"
             tool_args = {}
         
-        # Validate required arguments
-        if tool_name == "navigate" and "direction" not in tool_args:
-            print("Missing required argument 'direction' for navigate, defaulting to look")
-            tool_name = "look"
-            tool_args = {}
-        elif tool_name in ["examine", "take", "drop", "read", "open", "close"] and "object" not in tool_args:
-            print(f"Missing required argument 'object' for {tool_name}, defaulting to look")
-            tool_name = "look"
-            tool_args = {}
-        elif tool_name == "put" and ("object" not in tool_args or "container" not in tool_args):
-            print("Missing required arguments for put, defaulting to look")
-            tool_name = "look"
-            tool_args = {}
+        # Find the tool definition
+        tool_def = next((t for t in tools if t.get("name") == tool_name), None)
+        
+        # Validate required arguments if we have a tool definition
+        if tool_def:
+            input_schema = tool_def.get("inputSchema", {})
+            required = input_schema.get("required", [])
+            
+            missing_args = [arg for arg in required if arg not in tool_args]
+            if missing_args:
+                print(f"Missing required arguments for {tool_name}: {missing_args}, defaulting to look")
+                tool_name = "look"
+                tool_args = {}
+        # Fall back to hardcoded validation if we don't have a tool definition
+        else:
+            if tool_name == "navigate" and "direction" not in tool_args:
+                print("Missing required argument 'direction' for navigate, defaulting to look")
+                tool_name = "look"
+                tool_args = {}
+            elif tool_name in ["examine", "take", "drop", "read", "open", "close"] and "object" not in tool_args:
+                print(f"Missing required argument 'object' for {tool_name}, defaulting to look")
+                tool_name = "look"
+                tool_args = {}
+            elif tool_name == "put" and ("object" not in tool_args or "container" not in tool_args):
+                print("Missing required arguments for put, defaulting to look")
+                tool_name = "look"
+                tool_args = {}
     except json.JSONDecodeError:
         print("Error parsing JSON, defaulting to look")
         tool_name = "look"

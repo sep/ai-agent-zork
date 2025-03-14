@@ -161,19 +161,118 @@ def create_agent_workflow(
         """
         print("In select_tool node")
         
-        # Define available tools and their required parameters
-        available_tools = {
-            "navigate": {"required": ["direction"]},
-            "examine": {"required": ["object"]},
-            "take": {"required": ["object"]},
-            "drop": {"required": ["object"]},
-            "inventory": {"required": []},
-            "read": {"required": ["object"]},
-            "look": {"required": []},
-            "open": {"required": ["object"]},
-            "close": {"required": ["object"]},
-            "put": {"required": ["object", "container"]}
-        }
+        # Try to get the available tools from the MCP server
+        try:
+            from src.mcp.client import get_mcp_tools
+            
+            # Get the server name from the environment if available
+            server_name = getattr(environment, 'server_name', "zork-tools")
+            
+            # Get the available tools from the MCP server
+            tools = get_mcp_tools(server_name)
+            
+            # Build the tool descriptions and examples
+            tool_descriptions = ""
+            tool_examples = ""
+            available_tools = {}
+            
+            for tool in tools:
+                # Add the tool description
+                tool_name = tool.get("name", "")
+                if not tool_name:
+                    continue
+                    
+                description = tool.get("description", "")
+                tool_descriptions += f"- {tool_name}: {description}\n"
+                
+                # Add the tool to available_tools
+                input_schema = tool.get("inputSchema", {})
+                required = input_schema.get("required", [])
+                available_tools[tool_name] = {"required": required}
+                
+                # Get examples from the tool definition if available
+                examples = tool.get("examples", [])
+                if examples:
+                    for example in examples:
+                        # Add the example to the prompt
+                        example_json = {
+                            "tool": tool_name,
+                            "args": example.get("args", {})
+                        }
+                        example_name = example.get("name", f"Example for {tool_name}")
+                        tool_examples += f"{example_name}: {json.dumps(example_json)}\n"
+                else:
+                    # If no examples are provided, generate one based on the schema
+                    properties = input_schema.get("properties", {})
+                    
+                    # Build the example arguments
+                    example_args = {}
+                    for param_name, param_schema in properties.items():
+                        if param_name in required:
+                            # Use an example value based on the parameter name
+                            if param_name == "direction":
+                                example_args[param_name] = "north"
+                            elif param_name == "object":
+                                example_args[param_name] = "mailbox"
+                            elif param_name == "container":
+                                example_args[param_name] = "mailbox"
+                            else:
+                                example_args[param_name] = "example"
+                    
+                    # Add the example to the prompt
+                    example = {
+                        "tool": tool_name,
+                        "args": example_args
+                    }
+                    tool_examples += f"Example for {tool_name}: {json.dumps(example)}\n"
+        except (ImportError, Exception) as e:
+            print(f"Error getting MCP tools: {e}")
+            # Fall back to default tools
+            tools = []
+            tool_descriptions = ""
+            tool_examples = ""
+            available_tools = {
+                "navigate": {"required": ["direction"]},
+                "examine": {"required": ["object"]},
+                "take": {"required": ["object"]},
+                "drop": {"required": ["object"]},
+                "inventory": {"required": []},
+                "read": {"required": ["object"]},
+                "look": {"required": []},
+                "open": {"required": ["object"]},
+                "close": {"required": ["object"]},
+                "put": {"required": ["object", "container"]}
+            }
+        
+        # If no tools were found, use default descriptions and examples
+        if not tools:
+            tool_descriptions = """
+            - navigate: Move in a specified direction (north, south, east, west, up, down)
+            - examine: Examine an object in the environment
+            - take: Take an object
+            - drop: Drop an object from your inventory
+            - inventory: Check your inventory
+            - read: Read an object with text
+            - look: Look around to get a description of your surroundings
+            - open: Open a container or door
+            - close: Close a container or door
+            - put: Put an object into a container
+            """
+            
+            tool_examples = """
+            Example for navigate: {"tool": "navigate", "args": {"direction": "north"}}
+            Example for examine: {"tool": "examine", "args": {"object": "mailbox"}}
+            Example for take: {"tool": "take", "args": {"object": "leaflet"}}
+            Example for drop: {"tool": "drop", "args": {"object": "sword"}}
+            Example for inventory: {"tool": "inventory", "args": {}}
+            Example for read: {"tool": "read", "args": {"object": "leaflet"}}
+            Example for look: {"tool": "look", "args": {}}
+            Example for open: {"tool": "open", "args": {"object": "mailbox"}}
+            Example for close: {"tool": "close", "args": {"object": "mailbox"}}
+            Example for put: {"tool": "put", "args": {"object": "leaflet", "container": "mailbox"}}
+            """
+            
+            valid_tool_names = ["navigate", "examine", "take", "drop", "inventory", "read", "look", "open", "close", "put"]
         
         # Create a prompt for the LLM with more detailed instructions
         prompt = f"""
@@ -192,29 +291,11 @@ def create_agent_workflow(
         {state["thought"]}
         
         Available Tools:
-        - navigate: Move in a specified direction (north, south, east, west, up, down)
-        - examine: Examine an object in the environment
-        - take: Take an object
-        - drop: Drop an object from your inventory
-        - inventory: Check your inventory
-        - read: Read an object with text
-        - look: Look around to get a description of your surroundings
-        - open: Open a container or door
-        - close: Close a container or door
-        - put: Put an object into a container
+        {tool_descriptions}
         
         Select the most appropriate tool and provide its parameters in JSON format.
         
-        Example for navigate: {{"tool": "navigate", "args": {{"direction": "north"}}}}
-        Example for examine: {{"tool": "examine", "args": {{"object": "mailbox"}}}}
-        Example for take: {{"tool": "take", "args": {{"object": "leaflet"}}}}
-        Example for drop: {{"tool": "drop", "args": {{"object": "sword"}}}}
-        Example for inventory: {{"tool": "inventory", "args": {{}}}}
-        Example for read: {{"tool": "read", "args": {{"object": "leaflet"}}}}
-        Example for look: {{"tool": "look", "args": {{}}}}
-        Example for open: {{"tool": "open", "args": {{"object": "mailbox"}}}}
-        Example for close: {{"tool": "close", "args": {{"object": "mailbox"}}}}
-        Example for put: {{"tool": "put", "args": {{"object": "leaflet", "container": "mailbox"}}}}
+        {tool_examples}
         
         Your response must be valid JSON with a "tool" field and an "args" object containing the required parameters.
         
@@ -546,6 +627,7 @@ def run_agent_workflow(
         model_name: The name of the LLM model to use
         api_key: The API key for the LLM provider
         max_steps: Maximum number of steps to run
+        recursion_limit: Maximum recursion depth for the LangGraph workflow
     """
     # Create the workflow
     workflow, initial_state = create_agent_workflow(
