@@ -535,7 +535,8 @@ def run_agent_workflow(
     environment: Any,
     model_name: str = "gpt-3.5-turbo",
     api_key: Optional[str] = None,
-    max_steps: int = 20
+    max_steps: int = 20,
+    recursion_limit: int = 100
 ) -> None:
     """
     Run the agent workflow.
@@ -556,7 +557,9 @@ def run_agent_workflow(
     
     # Run the workflow
     print("Starting workflow...")
-    for i, state in enumerate(workflow.stream(initial_state)):
+    # Create a config dictionary with the recursion limit
+    config = {"recursion_limit": recursion_limit}
+    for i, state in enumerate(workflow.stream(initial_state, config=config)):
         node = state.get("__metadata__", {}).get("name", "")
         print(f"Processing node: {node}")
         

@@ -51,6 +51,12 @@ def main():
         help="Maximum number of steps to run (default: 20)"
     )
     parser.add_argument(
+        "--recursion-limit",
+        type=int,
+        default=100,
+        help="Maximum recursion depth for the LangGraph workflow (default: 100)"
+    )
+    parser.add_argument(
         "--mcp-server",
         type=str,
         default="zork-tools",
@@ -90,7 +96,8 @@ def main():
             environment=env,
             model_name=args.model,
             api_key=args.api_key,
-            max_steps=args.max_steps
+            max_steps=args.max_steps,
+            recursion_limit=args.recursion_limit
         )
     except KeyboardInterrupt:
         print("\nAgent stopped by user.")
