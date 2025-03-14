@@ -343,7 +343,14 @@ def create_agent_workflow(
                 if "args" in parsed and isinstance(parsed["args"], dict):
                     tool_args = parsed["args"]
             except json.JSONDecodeError:
-                print("JSON parsing failed, falling back to regex extraction")
+                print("\n" + "!"*80)
+                print("! WARNING: JSON parsing failed, falling back to regex extraction")
+                print("! Response: " + content[:100] + ("..." if len(content) > 100 else ""))
+                print("! This may indicate a problem with the LLM's response format.")
+                print("! The agent will attempt to extract the tool name and arguments using regex,")
+                print("! but this is less reliable than proper JSON parsing.")
+                print("!"*80 + "\n")
+                
                 # If that fails, use regex to extract the tool name and args with improved patterns
                 
                 # Extract tool name
@@ -359,7 +366,11 @@ def create_agent_workflow(
             
             # Validate the tool name
             if tool_name not in available_tools:
-                print(f"Invalid tool name: {tool_name}, defaulting to look")
+                print("\n" + "!"*80)
+                print(f"! WARNING: Invalid tool name: '{tool_name}'")
+                print("! This may indicate a problem with the LLM's understanding of available tools.")
+                print("! The agent will fall back to the 'look' tool, which may not be optimal.")
+                print("!"*80 + "\n")
                 tool_name = "look"
                 tool_args = {}
             
@@ -387,7 +398,11 @@ def create_agent_workflow(
             # If we still have missing required arguments, default to look
             missing_args = [arg for arg in required_args if arg not in tool_args]
             if missing_args:
-                print(f"Still missing required arguments, defaulting to look")
+                print("\n" + "!"*80)
+                print(f"! WARNING: Still missing required arguments for '{tool_name}': {missing_args}")
+                print("! This may indicate a problem with the LLM's understanding of tool parameters.")
+                print("! The agent will fall back to the 'look' tool, which may not be optimal.")
+                print("!"*80 + "\n")
                 tool_name = "look"
                 tool_args = {}
             

@@ -254,15 +254,26 @@ def get_mcp_tools(server_name: str = "zork-tools", debug: bool = False) -> List[
     Returns:
         A list of available tools with their descriptions and parameters
     """
-    client = get_mcp_client(server_name, debug)
-    
-    # Get the list of tools
-    tools = client.list_tools()
-    if not tools:
-        print("Warning: No tools found on MCP server")
+    try:
+        client = get_mcp_client(server_name, debug)
+        
+        # Get the list of tools
+        tools = client.list_tools()
+        if not tools:
+            print("\n" + "!"*80)
+            print("! WARNING: No tools found on MCP server. This may indicate a problem with the server.")
+            print("! The agent will fall back to hardcoded tool definitions, which may be outdated.")
+            print("!"*80 + "\n")
+            return []
+        
+        return tools
+    except Exception as e:
+        print("\n" + "!"*80)
+        print(f"! ERROR: Failed to get tools from MCP server: {e}")
+        print("! The agent will fall back to hardcoded tool definitions, which may be outdated.")
+        print("! This may indicate a problem with the server or the connection to it.")
+        print("!"*80 + "\n")
         return []
-    
-    return tools
 
 def use_mcp_tool(server_name: str, tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -296,6 +307,10 @@ def use_mcp_tool(server_name: str, tool_name: str, args: Dict[str, Any]) -> Dict
         result = _mcp_client.call_tool(tool_name, args)
         
         if not result:
+            print("\n" + "!"*80)
+            print(f"! ERROR: Failed to call tool {tool_name}: No result returned")
+            print("! This may indicate a problem with the server or the tool implementation.")
+            print("!"*80 + "\n")
             raise Exception(f"Error calling tool {tool_name}: No result")
         
         # Convert the MCP result to the format expected by the agent
@@ -323,7 +338,12 @@ def use_mcp_tool(server_name: str, tool_name: str, args: Dict[str, Any]) -> Dict
         }
     except Exception as e:
         # If there's an error, clean up the client and re-raise the exception
-        print(f"Error calling tool {tool_name}: {e}")
+        print("\n" + "!"*80)
+        print(f"! ERROR: Failed to call tool {tool_name}: {e}")
+        print("! This may indicate a problem with the server, the tool implementation,")
+        print("! or invalid arguments being passed to the tool.")
+        print("!"*80 + "\n")
+        
         if _mcp_client is not None:
             _mcp_client.stop()
             _mcp_client = None

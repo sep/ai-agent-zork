@@ -357,7 +357,12 @@ def select_tool(client: OpenAI, model_name: str, game_state: Dict[str, Any],
                 tool_name = "look"
                 tool_args = {}
     except json.JSONDecodeError:
-        print("Error parsing JSON, defaulting to look")
+        print("\n" + "!"*80)
+        print("! ERROR: Failed to parse LLM response as JSON")
+        print("! Response: " + content[:100] + ("..." if len(content) > 100 else ""))
+        print("! This may indicate a problem with the LLM's response format.")
+        print("! The agent will fall back to the 'look' tool, which may not be optimal.")
+        print("!"*80 + "\n")
         tool_name = "look"
         tool_args = {}
     
