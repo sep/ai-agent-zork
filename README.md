@@ -93,17 +93,17 @@ The rule-based agent doesn't require an LLM or API key.
 For more sophisticated agents that use LLMs, you can use the unified runner:
 
 ```
-# Run the implicit agent (generates text commands directly)
-python src/run_zork_agent.py --agent-type implicit
+# Run the langgraph agent (generates text commands directly)
+python src/run_zork_agent.py --agent-type langgraph
 
-# Run the explicit agent (uses tools with structured parameters)
-python src/run_zork_agent.py --agent-type explicit
+# Run the mcp-langgraph agent (uses tools with structured parameters)
+python src/run_zork_agent.py --agent-type mcp_langgraph
 ```
 
 You can specify which LLM model to use with the `--model` flag:
 
 ```
-python src/run_zork_agent.py --agent-type explicit --model gpt-4
+python src/run_zork_agent.py --agent-type mcp_langgraph --model gpt-4
 ```
 
 ### LLM Integration
@@ -130,7 +130,7 @@ The LLM-based planner requires an OpenAI API key to function. You can provide th
 
 3. Pass the API key directly as a command-line argument:
    ```
-   python src/run_zork_agent.py --agent-type implicit --api-key your-api-key-here
+python src/run_zork_agent.py --agent-type langgraph --api-key your-api-key-here
    ```
 
 If no API key is provided, the LLM-based agents will attempt to use the environment variable.
@@ -204,18 +204,18 @@ The LLM-based planner extends the rule-based planner with more sophisticated rea
 - Falls back to rule-based planning when needed
 - Provides more advanced puzzle-solving capabilities
 
-You can use it with the implicit agent:
+You can use it with the langgraph agent:
 ```
-python src/run_zork_agent.py --agent-type implicit
+python src/run_zork_agent.py --agent-type langgraph
 ```
 
 ### Agent Architectures
 
 This project implements two different agent architectures to demonstrate the evolution of AI agent design:
 
-#### Implicit Agent
+#### LangGraph Agent
 
-The implicit agent uses a LangGraph workflow with an observe-think-act loop:
+The LangGraph agent uses a LangGraph workflow with an observe-think-act loop:
 
 - Generates text commands directly (e.g., "go north", "take lamp")
 - Implicit reasoning about available actions
@@ -224,50 +224,50 @@ The implicit agent uses a LangGraph workflow with an observe-think-act loop:
 You can run either agent type using the unified runner:
 
 ```
-# Run the implicit agent (default)
-python src/run_zork_agent.py --agent-type implicit
+# Run the langgraph agent (default)
+python src/run_zork_agent.py --agent-type langgraph
 
-# Run the explicit agent
-python src/run_zork_agent.py --agent-type explicit
+# Run the mcp-langgraph agent
+python src/run_zork_agent.py --agent-type mcp_langgraph
 ```
 
 You can specify which LLM model to use with the `--model` flag:
 ```
-python src/run_zork_agent.py --agent-type implicit --model gpt-4
+python src/run_zork_agent.py --agent-type langgraph --model gpt-4
 ```
 
 For backward compatibility, you can also run each agent directly:
 ```
-# Implicit agent
-python src/run_implicit_agent.py
+# LangGraph agent
+python src/run_langgraph_agent.py
 
-# Explicit agent (uses MCP tools by default)
-python src/run_explicit_agent.py
+# MCP-LangGraph agent (uses MCP tools by default)
+python src/run_mcp_langgraph_agent.py
 
-# Explicit agent with fallback to mock environment if MCP is not available
-python src/run_explicit_agent.py --fallback-to-mock
+# MCP-LangGraph agent with fallback to mock environment if MCP is not available
+python src/run_mcp_langgraph_agent.py --fallback-to-mock
 ```
 
-#### Implicit Agent
+#### LangGraph Agent
 
-The implicit agent provides:
+The LangGraph agent provides:
 - Transparent reasoning (thoughts are displayed)
 - Direct command generation
 - Stateful workflow management
 
-A detailed diagram and explanation of the implicit agent workflow can be found in [src/agent/implicit/README.md](src/agent/implicit/README.md).
+A detailed diagram and explanation of the LangGraph agent workflow can be found in [src/agent/langgraph/README.md](src/agent/langgraph/README.md).
 
-#### Explicit Agent
+#### MCP-LangGraph Agent
 
-The explicit agent provides several advantages:
+The MCP-LangGraph agent provides several advantages:
 - More structured interaction with the environment through MCP tools
 - Clearer separation of reasoning and action
 - Better alignment with modern AI agent frameworks
 - Direct integration with the Model Context Protocol (MCP)
 
-The explicit agent now uses MCP tools by default, providing a more structured way to interact with the Zork environment. It explicitly selects tools and provides parameters, rather than generating text commands directly.
+The MCP-LangGraph agent uses MCP tools by default, providing a more structured way to interact with the Zork environment. It explicitly selects tools and provides parameters, rather than generating text commands directly.
 
-A detailed diagram and explanation of the explicit agent workflow can be found in [src/agent/explicit/README.md](src/agent/explicit/README.md).
+A detailed diagram and explanation of the MCP-LangGraph agent workflow can be found in [src/agent/mcp_langgraph/README.md](src/agent/mcp_langgraph/README.md).
 
 ## License
 

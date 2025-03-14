@@ -1,7 +1,9 @@
 """
-Simple Zork Agent.
+MCP Zork Agent.
 
-This script implements a simple agent that uses the MCP environment to play Zork.
+This module implements a direct MCP agent that uses the MCP environment to play Zork.
+The agent follows a deliberative process: first thinking about what to do,
+then selecting an action based on that thought.
 """
 import os
 import time
@@ -15,7 +17,8 @@ from src.mcp.environment import create_environment
 load_dotenv()
 
 
-def run_agent(model_name: str = "gpt-3.5-turbo", api_key: str = None, max_steps: int = 20, debug: bool = False):
+def run_agent(model_name: str = "gpt-3.5-turbo", api_key: str = None,
+              max_steps: int = 20, debug: bool = False):
     """
     Run the agent.
     
@@ -32,10 +35,10 @@ def run_agent(model_name: str = "gpt-3.5-turbo", api_key: str = None, max_steps:
     client = OpenAI(api_key=api_key)
     
     print("\n" + "="*60)
-    print("SIMPLE ZORK AGENT")
+    print("MCP ZORK AGENT")
     print("="*60)
     print(f"This agent uses {model_name} to play Zork.")
-    print("It explicitly selects actions to take in the environment.")
+    print("It follows a deliberative process: first thinking, then acting.")
     print("Press Ctrl+C to stop the agent.")
     
     # Create the environment
@@ -137,7 +140,8 @@ def generate_thought(client: OpenAI, model_name: str, game_state: Dict[str, Any]
     return response.choices[0].message.content
 
 
-def select_action(client: OpenAI, model_name: str, game_state: Dict[str, Any], thought: str) -> str:
+def select_action(client: OpenAI, model_name: str, game_state: Dict[str, Any],
+                 thought: str) -> str:
     """
     Select an action to take based on the thought.
     
@@ -180,50 +184,3 @@ def select_action(client: OpenAI, model_name: str, game_state: Dict[str, Any], t
     )
     
     return response.choices[0].message.content.strip()
-
-
-def main():
-    """
-    Main function.
-    """
-    import argparse
-    
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        description="Run the simple Zork agent"
-    )
-    parser.add_argument(
-        "--model", 
-        type=str, 
-        default="gpt-3.5-turbo",
-        help="LLM model to use"
-    )
-    parser.add_argument(
-        "--api-key",
-        type=str,
-        help="API key for the LLM provider (defaults to OPENAI_API_KEY env var)"
-    )
-    parser.add_argument(
-        "--max-steps",
-        type=int,
-        default=20,
-        help="Maximum number of steps to run (default: 20)"
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Print debug information"
-    )
-    args = parser.parse_args()
-    
-    # Run the agent
-    run_agent(
-        model_name=args.model,
-        api_key=args.api_key,
-        max_steps=args.max_steps,
-        debug=args.debug
-    )
-
-
-if __name__ == "__main__":
-    main()

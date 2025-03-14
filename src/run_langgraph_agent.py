@@ -8,7 +8,7 @@ import argparse
 import os
 from dotenv import load_dotenv
 from src.mock_environment import MockZorkEnvironment
-from src.agent.implicit.workflow import run_agent_workflow
+from src.agent.langgraph.workflow import run_agent_workflow
 
 # Load environment variables from .env file
 load_dotenv()
