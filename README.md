@@ -23,10 +23,15 @@ The agent demonstrates capabilities like:
 ai-agent-zork/
 ├── games/              # Game files
 │   └── zork1-r119-s880429.z3  # From https://github.com/the-infocom-files/zork1
+├── mcp/                # MCP server implementation
+│   └── zork-tools/     # MCP server for Zork tools
 ├── src/                # Source code
 │   ├── agent/          # Agent implementation
-│   ├── mock_environment.py  # Mock game environment
-│   └── jericho_environment.py  # Optional Jericho wrapper (reference)
+│   │   ├── langgraph/  # LangGraph agent implementation
+│   │   ├── mcp/        # MCP agent implementation
+│   │   └── mcp_langgraph/ # MCP-LangGraph agent implementation
+│   ├── mcp/            # MCP client implementation
+│   └── mock_environment.py  # Mock game environment
 ├── tests/              # Test cases
 └── requirements.txt    # Project dependencies
 ```
@@ -248,6 +253,8 @@ The MCP-LangGraph agent combines LangGraph for workflow structure with MCP for t
 - Selects specific MCP tools and provides parameters
 - Follows an observe-think-select_tool-act loop
 - Provides more structured interaction with the environment
+- Uses tool definitions and examples directly from the MCP server
+- Features prominent warning messages for error conditions
 
 You can run this agent using:
 
@@ -267,6 +274,8 @@ The MCP-LangGraph agent provides several advantages:
 - Clearer separation of reasoning and action
 - Better alignment with modern AI agent frameworks
 - Direct integration with the Model Context Protocol (MCP)
+- Robust error handling with clear warning messages
+- Dynamic tool discovery from the MCP server
 
 A detailed diagram and explanation of the MCP-LangGraph agent workflow can be found in [src/agent/mcp_langgraph/README.md](src/agent/mcp_langgraph/README.md).
 
@@ -276,6 +285,8 @@ The MCP agent uses MCP directly without LangGraph:
 
 - Follows a deliberative process of thinking then acting
 - Uses MCP tools to interact with the environment
+- Dynamically retrieves tool definitions from the MCP server
+- Features prominent warning messages for error conditions
 - Simpler implementation but less structured workflow
 
 You can run this agent using:
@@ -292,6 +303,8 @@ The MCP agent provides:
 - Direct use of MCP tools without the LangGraph workflow
 - Two-step process: deliberation followed by action selection
 - Simpler implementation compared to the LangGraph-based agents
+- Robust error handling with clear warning messages
+- Dynamic tool discovery from the MCP server
 
 A detailed explanation of the MCP agent can be found in [src/agent/mcp/README.md](src/agent/mcp/README.md).
 
