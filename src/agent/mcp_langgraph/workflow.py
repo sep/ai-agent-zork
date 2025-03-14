@@ -371,43 +371,56 @@ def create_agent_workflow(
             action = "look"
         
         try:
-            # Use the environment directly
-            print("Using environment directly")
+            # Check if we can use MCP tools directly
+            HAS_MCP = True
+            try:
+                from src.mcp.client import use_mcp_tool
+            except ImportError:
+                HAS_MCP = False
+                print("MCP client not available, falling back to direct environment calls")
             
-            # Map the tools to environment commands
-            if tool_name == "navigate":
-                direction = tool_args.get("direction", "")
-                result = environment.step(f"go {direction}")
-            elif tool_name == "examine":
-                obj = tool_args.get("object", "")
-                result = environment.step(f"examine {obj}")
-            elif tool_name == "take":
-                obj = tool_args.get("object", "")
-                result = environment.step(f"take {obj}")
-            elif tool_name == "drop":
-                obj = tool_args.get("object", "")
-                result = environment.step(f"drop {obj}")
-            elif tool_name == "inventory":
-                result = environment.step("inventory")
-            elif tool_name == "read":
-                obj = tool_args.get("object", "")
-                result = environment.step(f"read {obj}")
-            elif tool_name == "look":
-                result = environment.step("look")
-            elif tool_name == "open":
-                obj = tool_args.get("object", "")
-                result = environment.step(f"open {obj}")
-            elif tool_name == "close":
-                obj = tool_args.get("object", "")
-                result = environment.step(f"close {obj}")
-            elif tool_name == "put":
-                obj = tool_args.get("object", "")
-                container = tool_args.get("container", "")
-                result = environment.step(f"put {obj} in {container}")
+            if hasattr(environment, 'server_name') and HAS_MCP:
+                # Execute the tool via MCP
+                print(f"Using MCP to execute tool: {tool_name}")
+                result = use_mcp_tool(environment.server_name, tool_name, tool_args)
             else:
-                # Default to look if the tool is not recognized
-                print(f"Unrecognized tool: {tool_name}, defaulting to look")
-                result = environment.step("look")
+                # Fall back to the mock environment if MCP is not available
+                print("Falling back to direct environment calls")
+                
+                # Map the tools to environment commands
+                if tool_name == "navigate":
+                    direction = tool_args.get("direction", "")
+                    result = environment.step(f"go {direction}")
+                elif tool_name == "examine":
+                    obj = tool_args.get("object", "")
+                    result = environment.step(f"examine {obj}")
+                elif tool_name == "take":
+                    obj = tool_args.get("object", "")
+                    result = environment.step(f"take {obj}")
+                elif tool_name == "drop":
+                    obj = tool_args.get("object", "")
+                    result = environment.step(f"drop {obj}")
+                elif tool_name == "inventory":
+                    result = environment.step("inventory")
+                elif tool_name == "read":
+                    obj = tool_args.get("object", "")
+                    result = environment.step(f"read {obj}")
+                elif tool_name == "look":
+                    result = environment.step("look")
+                elif tool_name == "open":
+                    obj = tool_args.get("object", "")
+                    result = environment.step(f"open {obj}")
+                elif tool_name == "close":
+                    obj = tool_args.get("object", "")
+                    result = environment.step(f"close {obj}")
+                elif tool_name == "put":
+                    obj = tool_args.get("object", "")
+                    container = tool_args.get("container", "")
+                    result = environment.step(f"put {obj} in {container}")
+                else:
+                    # Default to look if the tool is not recognized
+                    print(f"Unrecognized tool: {tool_name}, defaulting to look")
+                    result = environment.step("look")
         except Exception as e:
             # Handle any errors that occur during tool execution
             print(f"Error executing tool {tool_name}: {e}")

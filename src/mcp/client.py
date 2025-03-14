@@ -216,6 +216,75 @@ def create_zork_client(debug: bool = False) -> MCPClient:
     return MCPClient("node", ["mcp/zork-tools/build/index.js"], debug)
 
 
+# Singleton MCP client for reuse across tool calls
+_mcp_client = None
+
+def use_mcp_tool(server_name: str, tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Use an MCP tool directly.
+    
+    This function uses a singleton MCP client to call the specified tool
+    with the provided arguments and returns the result. The client is
+    created and started on the first call, and reused for subsequent calls.
+    
+    Args:
+        server_name: The name of the MCP server to use
+        tool_name: The name of the tool to call
+        args: The arguments to pass to the tool
+        
+    Returns:
+        The result of the tool execution
+    """
+    global _mcp_client
+    
+    # Create and start the MCP client if it doesn't exist
+    if _mcp_client is None:
+        print("Creating and starting MCP client...")
+        _mcp_client = create_zork_client(debug=False)
+        
+        # Start the MCP server
+        if not _mcp_client.start():
+            raise Exception(f"Failed to start MCP server: {server_name}")
+    
+    try:
+        # Call the tool
+        result = _mcp_client.call_tool(tool_name, args)
+        
+        if not result:
+            raise Exception(f"Error calling tool {tool_name}: No result")
+        
+        # Convert the MCP result to the format expected by the agent
+        # The agent expects a result with observation, score, done, moves, etc.
+        observation = ""
+        for content_item in result.get("content", []):
+            if content_item.get("type") == "text":
+                observation += content_item.get("text", "")
+        
+        # Extract structured data if available
+        structured_data = {}
+        for content_item in result.get("content", []):
+            if content_item.get("type") == "json":
+                structured_data = content_item.get("json", {})
+        
+        # Create a result object that matches the environment.step() return value
+        return {
+            "observation": observation,
+            "score": structured_data.get("score", 0),
+            "done": structured_data.get("done", False),
+            "moves": structured_data.get("moves", 0),
+            "valid_actions": structured_data.get("valid_actions", []),
+            "inventory": structured_data.get("inventory", []),
+            "location": structured_data.get("location", "")
+        }
+    except Exception as e:
+        # If there's an error, clean up the client and re-raise the exception
+        print(f"Error calling tool {tool_name}: {e}")
+        if _mcp_client is not None:
+            _mcp_client.stop()
+            _mcp_client = None
+        raise
+
+
 def main():
     """
     Main function for testing the MCP client.
