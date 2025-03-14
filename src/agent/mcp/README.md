@@ -1,8 +1,69 @@
-# MCP Zork Agent
+# Zork AI Agent: MCP Agent
 
-This package implements a direct MCP agent that uses the MCP environment to play Zork.
+This document provides a visual representation and explanation of the MCP agent workflow.
 
-## Overview
+## Workflow Diagram
+
+```mermaid
+graph TD
+    %% Main function loop
+    Start([Start]) --> InitEnv[Initialize Environment]
+    InitEnv --> InitState[Initialize Agent State]
+    InitState --> Loop[Loop for max_steps]
+    
+    %% MCP Agent workflow
+    subgraph "MCP Agent Workflow"
+        Observe[Process Observation<br/>Update History] --> Deliberate[Deliberate<br/>Generate thought<br/>using LLM]
+        Deliberate --> SelectAction[Select Action<br/>Choose MCP tool & parameters<br/>using LLM]
+        SelectAction --> ExecuteTool[Execute Tool<br/>via MCP]
+    end
+    
+    %% Function control flow
+    Loop --> InvokeWorkflow[Run MCP Agent Workflow]
+    InvokeWorkflow --> UpdateState[Update Agent State]
+    UpdateState --> Loop
+    Loop --> CheckEnd{Done?}
+    CheckEnd -->|Yes| FinalStats[Print Final Stats]
+    CheckEnd -->|No| Loop
+    FinalStats --> End([End])
+    
+    %% Environment interaction via MCP
+    subgraph "MCP Tool Execution"
+        ExecuteTool --> MCPClient[MCP Client]
+        MCPClient --> MCPServer[MCP Server]
+        MCPServer --> ToolRegistry[Tool Registry]
+        ToolRegistry --> ToolExecution[Tool Execution]
+        ToolExecution --> EnvInteraction[Environment Interaction]
+        EnvInteraction --> ToolResponse[Tool Response]
+        ToolResponse --> ExecuteTool
+    end
+    
+    %% Styling
+    classDef process fill:#f9f,stroke:#333,stroke-width:2px
+    classDef decision fill:#bbf,stroke:#333,stroke-width:2px
+    classDef terminal fill:#dfd,stroke:#333,stroke-width:2px
+    classDef mcp fill:#ffd,stroke:#333,stroke-width:2px
+    
+    class Start,End terminal
+    class CheckEnd decision
+    class Observe,Deliberate,SelectAction,ExecuteTool,InitEnv,InitState,UpdateState,Loop,InvokeWorkflow,FinalStats process
+    class MCPClient,MCPServer,ToolRegistry,ToolExecution,EnvInteraction,ToolResponse mcp
+```
+
+## Explanation of the Workflow
+
+The diagram illustrates the MCP agent workflow, which uses a direct approach to interact with the environment through MCP tools:
+
+### Main Loop
+
+1. **Initialization**: The process starts by initializing the environment and the agent state.
+2. **Main Loop**: For each step (up to max_steps):
+   - Run the MCP agent workflow
+   - Update the agent state with the result
+   - Check if the game is done
+3. **Termination**: Print final stats and end the process
+
+### MCP Agent Workflow
 
 The MCP agent follows a two-step process:
 
@@ -10,6 +71,23 @@ The MCP agent follows a two-step process:
 2. **Action Selection**: Based on this deliberation, the agent selects a specific action to take.
 
 This approach mimics human problem-solving: we typically think before we act, weighing options and considering consequences.
+
+In more detail:
+
+1. **Process Observation**: The agent processes the current observation and updates its history
+2. **Deliberate**: The agent generates a thought about what to do next using the LLM
+3. **Select Action**: Based on the deliberation, the agent selects a specific MCP tool and parameters
+4. **Execute Tool**: The agent executes the selected tool via MCP
+
+### MCP Tool Execution
+
+The diagram also shows how the agent interacts with the environment through MCP:
+1. **MCP Client**: The agent sends a tool request to the MCP client
+2. **MCP Server**: The client forwards the request to the MCP server
+3. **Tool Registry**: The server looks up the requested tool in its registry
+4. **Tool Execution**: The server executes the tool with the provided parameters
+5. **Environment Interaction**: The tool interacts with the environment
+6. **Tool Response**: The result is returned to the agent
 
 ## Usage
 
