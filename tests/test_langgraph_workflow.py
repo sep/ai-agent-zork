@@ -1,5 +1,5 @@
 """
-Unit tests for the implicit LangGraph workflow.
+Unit tests for the LangGraph workflow.
 """
 import unittest
 from unittest.mock import MagicMock, patch
@@ -9,11 +9,11 @@ import sys
 # Add the src directory to the path so we can import the modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.agent.implicit.workflow import create_agent_workflow, AgentState, run_agent_workflow
+from src.agent.langgraph.workflow import create_agent_workflow, AgentState, run_agent_workflow
 
 
-class TestImplicitWorkflow(unittest.TestCase):
-    """Test cases for the implicit LangGraph workflow."""
+class TestLangGraphWorkflow(unittest.TestCase):
+    """Test cases for the LangGraph workflow."""
 
     def setUp(self):
         """Set up test fixtures."""
@@ -45,7 +45,7 @@ class TestImplicitWorkflow(unittest.TestCase):
             MagicMock(content="examine test")
         ]
 
-    @patch('src.agent.implicit.workflow.ChatOpenAI')
+    @patch('src.agent.langgraph.workflow.ChatOpenAI')
     def test_create_workflow(self, mock_chat_openai):
         """Test creating the workflow."""
         # Set up the mock
@@ -64,7 +64,7 @@ class TestImplicitWorkflow(unittest.TestCase):
         app = workflow.compile()
         self.assertIsNotNone(app)
 
-    @patch('src.agent.implicit.workflow.ChatOpenAI')
+    @patch('src.agent.langgraph.workflow.ChatOpenAI')
     def test_observe_node(self, mock_chat_openai):
         """Test the observe node."""
         # Set up the mock
@@ -100,7 +100,7 @@ class TestImplicitWorkflow(unittest.TestCase):
         # Assert that the LLM was called twice (once for thought, once for action)
         self.assertEqual(self.mock_llm.invoke.call_count, 2)
 
-    @patch('src.agent.implicit.workflow.ChatOpenAI')
+    @patch('src.agent.langgraph.workflow.ChatOpenAI')
     def test_run_workflow(self, mock_chat_openai):
         """Test running the workflow."""
         # Set up the mock

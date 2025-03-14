@@ -1,6 +1,6 @@
-# Zork AI Agent: Explicit Tool-Based Workflow
+# Zork AI Agent: MCP LangGraph Workflow
 
-This document provides a visual representation and explanation of the explicit tool-based agent workflow.
+This document provides a visual representation and explanation of the MCP LangGraph agent workflow.
 
 ## Workflow Diagram
 
@@ -55,7 +55,7 @@ graph TD
 
 ## Explanation of the Workflow
 
-The diagram illustrates the explicit tool-based agent workflow, which extends the implicit agent architecture with a tool selection layer:
+The diagram illustrates the MCP LangGraph agent workflow, which extends the basic LangGraph architecture with a tool selection layer:
 
 ### Outer Loop (Function Level)
 
@@ -90,7 +90,7 @@ The diagram also shows how the agent interacts with the environment through MCP:
 
 ### Tool Selection Process
 
-The explicit agent adds a tool selection node to the workflow, which:
+The MCP LangGraph agent adds a tool selection node to the workflow, which:
 
 1. **Receives the agent's thought** about what to do next
 2. **Presents available tools** with descriptions and parameter schemas
@@ -138,7 +138,7 @@ Example tool selection response:
 
 ### MCP Integration
 
-The explicit agent now uses the Model Context Protocol (MCP) by default to interact with tools:
+The MCP LangGraph agent uses the Model Context Protocol (MCP) by default to interact with tools:
 
 1. **Tool Definition**: Tools are defined in the MCP server with schemas
 2. **Tool Registration**: Tools are registered with the MCP server at startup
@@ -224,7 +224,7 @@ def act(state: AgentState) -> AgentState:
     return state
 ```
 
-## Benefits of the Explicit Approach
+## Benefits of the MCP LangGraph Approach
 
 1. **Structured Interaction**: Tools provide a structured interface to the environment
 2. **Clear Reasoning**: The agent explicitly reasons about which tool to use

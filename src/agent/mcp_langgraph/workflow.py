@@ -1,7 +1,7 @@
 """
-LangGraph workflow for the explicit Zork AI agent.
+MCP LangGraph workflow for the Zork AI agent.
 
-This module implements a LangGraph workflow for an explicit agent that uses MCP tools
+This module implements a LangGraph workflow for an agent that uses MCP tools
 to interact with the Zork environment. The agent explicitly selects tools and
 provides parameters, rather than generating text commands directly.
 """
@@ -12,8 +12,6 @@ import re
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
-
-# Import the MCP environment
 
 
 class AgentState(TypedDict):
@@ -44,7 +42,7 @@ def create_agent_workflow(
     max_steps: int = 20
 ) -> Tuple[StateGraph, Dict[str, Any]]:
     """
-    Create a LangGraph workflow for the explicit Zork AI agent.
+    Create a LangGraph workflow for the MCP Zork AI agent.
     
     Args:
         environment: The environment to interact with

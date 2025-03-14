@@ -1,17 +1,17 @@
 """
-Run the Zork AI agent with the explicit LangGraph workflow.
+Run the Zork AI agent with the MCP LangGraph workflow.
 
-This script runs the agent with the mock environment and explicit LangGraph workflow,
+This script runs the agent with the mock environment and MCP LangGraph workflow,
 demonstrating a more sophisticated agent architecture with tool-based interaction.
-The workflow is designed to work with MCP tools for Zork, though it currently
-uses the mock environment directly for simplicity.
+The workflow is designed to work with MCP tools for Zork, though it can
+fall back to the mock environment if needed.
 """
 import argparse
 import os
 from dotenv import load_dotenv
 from src.mock_environment import MockZorkEnvironment
 from src.mcp.environment import create_environment
-from src.agent.explicit.workflow import run_agent_workflow
+from src.agent.mcp_langgraph.workflow import run_agent_workflow
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,16 +22,16 @@ MCP_SERVER_NAME = "zork-tools"
 
 def main():
     """
-    Run the Zork AI agent with the explicit LangGraph workflow.
+    Run the Zork AI agent with the MCP LangGraph workflow.
     
     This function:
     1. Initializes the environment
-    2. Creates and runs the explicit LangGraph workflow
+    2. Creates and runs the MCP LangGraph workflow
     3. Shows the agent's thoughts, tool selections, and the environment's responses
     """
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description="Run the Zork AI agent with explicit tool-based workflow"
+        description="Run the Zork AI agent with MCP LangGraph workflow"
     )
     parser.add_argument(
         "--model", 
@@ -64,10 +64,10 @@ def main():
     args = parser.parse_args()
     
     print("\n" + "="*60)
-    print("ZORK AI AGENT WITH EXPLICIT TOOL-BASED WORKFLOW")
+    print("ZORK AI AGENT WITH MCP LANGGRAPH WORKFLOW")
     print("="*60)
     print(f"This agent uses a LangGraph workflow with {args.model} to play Zork.")
-    print("It explicitly selects tools and provides parameters through the MCP server.")
+    print("It selects MCP tools and provides parameters to interact with the environment.")
     print("Press Ctrl+C to stop the agent.")
     
     # Initialize the environment

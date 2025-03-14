@@ -1,16 +1,15 @@
 """
 Unified runner for the Zork AI agent.
 
-This script provides a unified entry point for running either the implicit or explicit
+This script provides a unified entry point for running either the LangGraph or MCP LangGraph
 agent with the appropriate environment.
 """
 import argparse
-import os
 from dotenv import load_dotenv
 from src.mock_environment import MockZorkEnvironment
 from src.mcp.environment import create_environment
-from src.agent.implicit.workflow import run_agent_workflow as run_implicit_workflow
-from src.agent.explicit.workflow import run_agent_workflow as run_explicit_workflow
+from src.agent.langgraph.workflow import run_agent_workflow as run_langgraph_workflow
+from src.agent.mcp_langgraph.workflow import run_agent_workflow as run_mcp_langgraph_workflow
 
 # Load environment variables from .env file
 load_dotenv()
@@ -21,7 +20,7 @@ MCP_SERVER_NAME = "zork-tools"
 
 def main():
     """
-    Run the Zork AI agent with either the implicit or explicit workflow.
+    Run the Zork AI agent with either the LangGraph or MCP LangGraph workflow.
     
     This function:
     1. Parses command line arguments to determine which agent to run
@@ -33,9 +32,9 @@ def main():
     parser.add_argument(
         "--agent-type",
         type=str,
-        choices=["implicit", "explicit"],
-        default="implicit",
-        help="Type of agent to run (implicit or explicit)"
+        choices=["langgraph", "mcp-langgraph"],
+        default="langgraph",
+        help="Type of agent to run (langgraph or mcp-langgraph)"
     )
     parser.add_argument(
         "--model", 
@@ -69,19 +68,19 @@ def main():
     
     # Print header based on agent type
     print("\n" + "="*60)
-    if args.agent_type == "implicit":
-        print("ZORK AI AGENT WITH IMPLICIT WORKFLOW")
+    if args.agent_type == "langgraph":
+        print("ZORK AI AGENT WITH LANGGRAPH WORKFLOW")
         print("="*60)
         print("This agent generates text commands directly.")
         
-        # Initialize the environment for implicit agent
+        # Initialize the environment for LangGraph agent
         env = MockZorkEnvironment()
     else:
-        print("ZORK AI AGENT WITH EXPLICIT TOOL-BASED WORKFLOW")
+        print("ZORK AI AGENT WITH MCP LANGGRAPH WORKFLOW")
         print("="*60)
-        print("This agent explicitly selects tools and provides parameters.")
+        print("This agent selects MCP tools and provides parameters.")
         
-        # Initialize the environment for explicit agent
+        # Initialize the environment for MCP LangGraph agent
         try:
             print(f"Using MCP environment with server: {args.mcp_server}")
             env = create_environment(server_name=args.mcp_server, debug=True)
@@ -100,15 +99,15 @@ def main():
     
     try:
         # Run the selected agent workflow
-        if args.agent_type == "implicit":
-            run_implicit_workflow(
+        if args.agent_type == "langgraph":
+            run_langgraph_workflow(
                 environment=env,
                 model_name=args.model,
                 api_key=args.api_key,
                 max_steps=args.max_steps
             )
         else:
-            run_explicit_workflow(
+            run_mcp_langgraph_workflow(
                 environment=env,
                 model_name=args.model,
                 api_key=args.api_key,

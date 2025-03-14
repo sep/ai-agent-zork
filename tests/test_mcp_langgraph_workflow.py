@@ -1,5 +1,5 @@
 """
-Unit tests for the explicit LangGraph workflow.
+Unit tests for the MCP LangGraph workflow.
 """
 import os
 import sys
@@ -11,12 +11,12 @@ sys.path.append(os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..')))
 
 # Import the workflow modules
-from src.agent.explicit.workflow import (  # noqa: E402
+from src.agent.mcp_langgraph.workflow import (  # noqa: E402
     create_agent_workflow, run_agent_workflow)
 
 
-class TestExplicitWorkflow(unittest.TestCase):
-    """Test cases for the explicit LangGraph workflow."""
+class TestMcpLangGraphWorkflow(unittest.TestCase):
+    """Test cases for the MCP LangGraph workflow."""
 
     def setUp(self):
         """Set up test fixtures."""
@@ -50,7 +50,7 @@ class TestExplicitWorkflow(unittest.TestCase):
                 content='{"tool": "examine", "args": {"object": "test"}}')
         ]
 
-    @patch('src.agent.explicit.workflow.ChatOpenAI')
+    @patch('src.agent.mcp_langgraph.workflow.ChatOpenAI')
     def test_create_workflow(self, mock_chat_openai):
         """Test creating the workflow."""
         # Set up the mock
@@ -84,7 +84,7 @@ class TestExplicitWorkflow(unittest.TestCase):
         self.assertIsNone(initial_state["tool_args"])
         self.assertIsNone(initial_state["tool_result"])
 
-    @patch('src.agent.explicit.workflow.ChatOpenAI')
+    @patch('src.agent.mcp_langgraph.workflow.ChatOpenAI')
     def test_observe_node(self, mock_chat_openai):
         """Test the observe node."""
         # Set up the mock
@@ -111,7 +111,7 @@ class TestExplicitWorkflow(unittest.TestCase):
         # Assert that the LLM was called twice (once for thought, once for tool selection)
         self.assertEqual(self.mock_llm.invoke.call_count, 2)
 
-    @patch('src.agent.explicit.workflow.ChatOpenAI')
+    @patch('src.agent.mcp_langgraph.workflow.ChatOpenAI')
     def test_run_workflow(self, mock_chat_openai):
         """Test running the workflow."""
         # Set up the mock
