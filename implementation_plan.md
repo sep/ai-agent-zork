@@ -41,23 +41,70 @@
    - Tests for LangGraph workflow
    - Mock environment for testing
 
-## Remaining Implementation Steps
+## Current Implementation: Tool Framework
 
-1. **Make Tool-Use More Explicit**
-   - Define explicit tool classes for different action types (MovementTool, ExamineTool, etc.)
-   - Add tool descriptions and documentation
-   - Implement tool selection logic in the workflow
-   - Update the agent to use the tool framework
-   - Add tests for the tool framework
+1. **Implement Structured Tool Framework** (In Progress)
+   - 🔄 Define tool definitions in YAML format (`tools.yaml`):
+     - Create a unified definition for all tools
+     - Include name, description, required/optional arguments, and examples
+     - Use this as the single source of truth for both MCP server and Python tools
+   - ✅ Create MCP server tools in TypeScript
+   - 🔄 Implement `generate_tools.py` script to:
+     - Read tool definitions from `tools.yaml`
+     - Generate Python files for the tool registry and individual tool classes
+     - Generate test files for the tool framework
+   - 🔄 Update the agent to use the tool framework:
+     - Modify the agent's action selection logic to use the tool registry
+     - Update the execution logic to call the appropriate tools
+     - Ensure proper error handling for tool execution
+   - 🔄 Integrate with LangGraph workflow:
+     - Update the workflow to use the tool framework
+     - Add tool selection step to the workflow
+     - Ensure proper handling of tool results
+   - 🔄 Test the implementation:
+     - Run the generated tests to verify the tool framework works correctly
+     - Test the agent with the new tool framework
+     - Verify that all tools work as expected
 
-2. **Integrate LangView**
+### Unified Tool Definition Approach
+
+The tool framework uses a unified definition approach where tools are defined in one place (`tools.yaml`) and both the MCP server tools and Python tool registry are generated from the same definitions. This ensures consistency between the two implementations and makes it easier to add new tools in the future.
+
+Example tool definition in YAML:
+```yaml
+- name: navigate
+  description: Move in a specified direction
+  required_args:
+    - direction
+  optional_args: []
+  arg_descriptions:
+    direction: Direction to move (north, south, east, west, up, down, etc.)
+  examples:
+    - args:
+        direction: north
+      description: Move north
+```
+
+The `generate_tools.py` script will:
+1. Read these definitions from `tools.yaml`
+2. Generate Python files:
+   - `base.py` - Base Tool class and McpToolAdapter
+   - `registry.py` - ToolRegistry class and tool registration
+   - `__init__.py` - Exports and singleton registry
+   - `README.md` - Documentation for the tool framework
+3. Generate test files:
+   - `test_tools.py` - Unit tests for the tool framework
+
+## Future Implementation Steps
+
+1. **Integrate LangView**
    - Set up LangView for workflow visualization
    - Configure tracing for the LangGraph workflow
    - Add instrumentation to capture agent reasoning
    - Create visualization dashboard
    - Document LangView integration
 
-3. **Replace Mock Environment with Real Implementation**
+2. **Replace Mock Environment with Real Implementation**
    - Integrate with Z-machine interpreter (e.g., Frotz or Jericho)
    - Implement adapter for the real Zork game
    - Handle text parsing and response extraction
@@ -67,8 +114,9 @@
 ## Technical Considerations
 
 1. **Tool Framework Design**
-   - Consider using a standard format like OpenAI's function calling API
-   - Ensure backward compatibility with existing code
+   - Using a unified YAML definition format for all tools
+   - McpToolAdapter pattern to bridge between Python and MCP server
+   - Singleton ToolRegistry for easy access throughout the codebase
    - Design for extensibility to add new tools easily
 
 2. **LangView Integration**
