@@ -6,51 +6,35 @@ This document provides a visual representation and explanation of the MCP LangGr
 
 ```mermaid
 graph TD
-    %% Main function loop
-    Start([Start]) --> InitEnv[Initialize Environment]
-    InitEnv --> InitState[Initialize Agent State]
-    InitState --> Loop[Loop for max_steps]
+    %% Main workflow
+    Start([Start]) --> Init[Initialize]
+    Init --> Loop[Main Loop]
     
-    %% LangGraph workflow (inner loop)
+    %% Core LangGraph workflow
     subgraph "LangGraph Workflow"
-        Observe[Observe Node<br/>Process observation<br/>Update history] --> ShouldContinue{Should Continue?}
-        ShouldContinue -->|"continue"| Think[Think Node<br/>Generate thought<br/>using LLM]
-        ShouldContinue -->|"end"| End([End Workflow])
-        Think --> SelectTool[Select Tool Node<br/>Choose tool & parameters<br/>using LLM]
-        SelectTool --> Act[Act Node<br/>Execute selected tool<br/>via MCP]
+        Observe[Observe] --> Think[Think]
+        Think --> SelectTool[Select Tool]
+        SelectTool --> Act[Act]
+        Act --> ShouldContinue{Continue?}
+        ShouldContinue -->|Yes| Observe
+        ShouldContinue -->|No| End([End])
     end
     
-    %% Function control flow (outer loop)
-    Loop --> InvokeGraph[Invoke LangGraph Workflow]
-    InvokeGraph --> CheckEnd{Workflow Ended?}
-    CheckEnd -->|Yes| FinalStats[Print Final Stats]
-    CheckEnd -->|No| UpdateState[Update Agent State]
-    UpdateState --> ExecuteAction[Execute Action in Environment]
-    ExecuteAction --> UpdateObservation[Update Agent State with New Observation]
-    UpdateObservation --> Loop
-    FinalStats --> End2([End])
-    
-    %% Environment interaction via MCP
-    subgraph "MCP Tool Execution"
-        Act --> MCPClient[MCP Client]
-        MCPClient --> MCPServer[MCP Server]
-        MCPServer --> ToolRegistry[Tool Registry]
-        ToolRegistry --> ToolExecution[Tool Execution]
-        ToolExecution --> EnvInteraction[Environment Interaction]
-        EnvInteraction --> ToolResponse[Tool Response]
-        ToolResponse --> Act
+    %% Environment interaction
+    subgraph "Environment"
+        Act --> MCP[MCP Tools]
+        MCP --> Env[Game Environment]
+        Env --> Observe
     end
     
     %% Styling
     classDef process fill:#f9f,stroke:#333,stroke-width:2px
     classDef decision fill:#bbf,stroke:#333,stroke-width:2px
     classDef terminal fill:#dfd,stroke:#333,stroke-width:2px
-    classDef mcp fill:#ffd,stroke:#333,stroke-width:2px
     
-    class Start,End,End2 terminal
-    class ShouldContinue,CheckEnd decision
-    class Observe,Think,SelectTool,Act,InitEnv,InitState,UpdateState,ExecuteAction,UpdateObservation,Loop,InvokeGraph,FinalStats process
-    class MCPClient,MCPServer,ToolRegistry,ToolExecution,EnvInteraction,ToolResponse mcp
+    class Start,End terminal
+    class ShouldContinue decision
+    class Observe,Think,SelectTool,Act,Init,Loop,MCP,Env process
 ```
 
 ## Explanation of the Workflow

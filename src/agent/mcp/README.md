@@ -6,48 +6,35 @@ This document provides a visual representation and explanation of the MCP agent 
 
 ```mermaid
 graph TD
-    %% Main function loop
-    Start([Start]) --> InitEnv[Initialize Environment]
-    InitEnv --> InitState[Initialize Agent State]
-    InitState --> Loop[Loop for max_steps]
+    %% Main workflow
+    Start([Start]) --> Init[Initialize]
+    Init --> Observe[Observe]
     
     %% MCP Agent workflow
     subgraph "MCP Agent Workflow"
-        Observe[Process Observation<br/>Update History] --> Deliberate[Deliberate<br/>Generate thought<br/>using LLM]
-        Deliberate --> SelectAction[Select Action<br/>Choose MCP tool & parameters<br/>using LLM]
+        Observe --> Deliberate[Deliberate<br/>LLM: Generate thought]
+        Deliberate --> SelectAction[Select Action<br/>LLM: Choose tool]
         SelectAction --> ExecuteTool[Execute Tool<br/>via MCP]
+        ExecuteTool --> ShouldContinue{Continue?}
+        ShouldContinue -->|Yes| Observe
+        ShouldContinue -->|No| End([End])
     end
     
-    %% Function control flow
-    Loop --> InvokeWorkflow[Run MCP Agent Workflow]
-    InvokeWorkflow --> UpdateState[Update Agent State]
-    UpdateState --> Loop
-    Loop --> CheckEnd{Done?}
-    CheckEnd -->|Yes| FinalStats[Print Final Stats]
-    CheckEnd -->|No| Loop
-    FinalStats --> End([End])
-    
-    %% Environment interaction via MCP
-    subgraph "MCP Tool Execution"
-        ExecuteTool --> MCPClient[MCP Client]
-        MCPClient --> MCPServer[MCP Server]
-        MCPServer --> ToolRegistry[Tool Registry]
-        ToolRegistry --> ToolExecution[Tool Execution]
-        ToolExecution --> EnvInteraction[Environment Interaction]
-        EnvInteraction --> ToolResponse[Tool Response]
-        ToolResponse --> ExecuteTool
+    %% Environment interaction
+    subgraph "Environment"
+        ExecuteTool --> MCP[MCP Tools]
+        MCP --> Env[Game Environment]
+        Env --> Observe
     end
     
     %% Styling
     classDef process fill:#f9f,stroke:#333,stroke-width:2px
     classDef decision fill:#bbf,stroke:#333,stroke-width:2px
     classDef terminal fill:#dfd,stroke:#333,stroke-width:2px
-    classDef mcp fill:#ffd,stroke:#333,stroke-width:2px
     
     class Start,End terminal
-    class CheckEnd decision
-    class Observe,Deliberate,SelectAction,ExecuteTool,InitEnv,InitState,UpdateState,Loop,InvokeWorkflow,FinalStats process
-    class MCPClient,MCPServer,ToolRegistry,ToolExecution,EnvInteraction,ToolResponse mcp
+    class ShouldContinue decision
+    class Observe,Deliberate,SelectAction,ExecuteTool,Init,MCP,Env process
 ```
 
 ## Explanation of the Workflow

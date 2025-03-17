@@ -6,39 +6,23 @@ This document provides a visual representation and explanation of the Zork AI ag
 
 ```mermaid
 graph TD
-    %% Main function loop
-    Start([Start]) --> InitEnv[Initialize Environment]
-    InitEnv --> InitState[Initialize Agent State]
-    InitState --> Loop[Loop for max_steps]
+    %% Main workflow
+    Start([Start]) --> Init[Initialize]
+    Init --> Observe[Observe]
     
-    %% LangGraph workflow (inner loop)
+    %% Core LangGraph workflow
     subgraph "LangGraph Workflow"
-        Observe[Observe Node<br/>Process observation<br/>Update history] --> ShouldContinue{Should Continue?}
-        ShouldContinue -->|"continue"| Think[Think Node<br/>Generate thought<br/>using LLM]
-        ShouldContinue -->|"end"| End([End Workflow])
-        Think --> Act[Act Node<br/>Generate action<br/>using LLM]
+        Observe --> Think[Think<br/>LLM: Generate thought]
+        Think --> Act[Act<br/>LLM: Generate action]
+        Act --> ShouldContinue{Continue?}
+        ShouldContinue -->|Yes| Observe
+        ShouldContinue -->|No| End([End])
     end
     
-    %% Function control flow (outer loop)
-    Loop --> InvokeGraph[Invoke LangGraph Workflow]
-    InvokeGraph --> CheckEnd{Workflow Ended?}
-    CheckEnd -->|Yes| FinalStats[Print Final Stats]
-    CheckEnd -->|No| UpdateState[Update Agent State]
-    UpdateState --> ExecuteAction[Execute Action in Environment]
-    ExecuteAction --> UpdateObservation[Update Agent State with New Observation]
-    UpdateObservation --> Loop
-    FinalStats --> End2([End])
-    
     %% Environment interaction
-    subgraph "Environment Interaction"
-        ExecuteAction --> EnvStep[Environment.step]
-        EnvStep --> GetObs[Get Observation]
-        GetObs --> GetValid[Get Valid Actions]
-        GetValid --> GetLoc[Get Location]
-        GetLoc --> GetScore[Get Score]
-        GetScore --> GetMoves[Get Moves]
-        GetMoves --> GetInv[Get Inventory]
-        GetInv --> UpdateObservation
+    subgraph "Environment"
+        Act --> Env[Game Environment]
+        Env --> Observe
     end
     
     %% Styling
@@ -46,9 +30,9 @@ graph TD
     classDef decision fill:#bbf,stroke:#333,stroke-width:2px
     classDef terminal fill:#dfd,stroke:#333,stroke-width:2px
     
-    class Start,End,End2 terminal
-    class ShouldContinue,CheckEnd decision
-    class Observe,Think,Act,InitEnv,InitState,UpdateState,ExecuteAction,UpdateObservation,Loop,InvokeGraph,FinalStats process
+    class Start,End terminal
+    class ShouldContinue decision
+    class Observe,Think,Act,Init,Env process
 ```
 
 ## Explanation of the Workflow
