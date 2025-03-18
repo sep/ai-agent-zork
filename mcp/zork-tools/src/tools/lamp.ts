@@ -41,7 +41,7 @@ export const lampToolDefinition = {
  * @param args The lamp arguments
  * @returns The result of the lamp action
  */
-export function handleLamp(environment: MockZorkEnvironment, args: any) {
+export function handleLamp(environment: MockZorkEnvironment, args: LampArgs) {
   // Validate arguments
   if (!args || (args.action !== 'on' && args.action !== 'off')) {
     return {

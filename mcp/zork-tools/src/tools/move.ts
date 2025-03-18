@@ -40,7 +40,7 @@ export const moveToolDefinition = {
  * @param args The move arguments
  * @returns The result of the move action
  */
-export function handleMove(environment: MockZorkEnvironment, args: any) {
+export function handleMove(environment: MockZorkEnvironment, args: MoveArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {

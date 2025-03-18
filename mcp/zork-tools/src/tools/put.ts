@@ -45,7 +45,7 @@ export const putToolDefinition = {
  * @param args The put arguments
  * @returns The result of the put action
  */
-export function handlePut(environment: MockZorkEnvironment, args: any) {
+export function handlePut(environment: MockZorkEnvironment, args: PutArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string' || typeof args.container !== 'string') {
     return {
