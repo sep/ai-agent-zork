@@ -23,6 +23,7 @@ import { handleClose, closeToolDefinition } from './tools/close.js';
 import { handlePut, putToolDefinition } from './tools/put.js';
 import { handleLamp, lampToolDefinition } from './tools/lamp.js';
 import { handleMove, moveToolDefinition } from './tools/move.js';
+import { handleLook, lookToolDefinition } from './tools/look.js';
 
 class ZorkToolsServer {
   private server: Server;
@@ -69,7 +70,8 @@ class ZorkToolsServer {
         closeToolDefinition,
         putToolDefinition,
         lampToolDefinition,
-        moveToolDefinition
+        moveToolDefinition,
+        lookToolDefinition
       ]
     }));
 
@@ -124,19 +126,6 @@ class ZorkToolsServer {
     await this.server.connect(transport);
     console.error('Zork Tools MCP server running on stdio');
   }
-}
-
-// Helper function for the look tool
-function handleLook(environment: MockZorkEnvironment) {
-  const result = environment.step('look');
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }
 
 const server = new ZorkToolsServer();
