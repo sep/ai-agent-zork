@@ -13,7 +13,7 @@ import { MockZorkEnvironment } from './mock-environment.js';
 
 // Import tool handlers and definitions
 import { handleNavigate, navigateToolDefinition } from './tools/navigation.js';
-import { handleExamine, examineToolDefinition } from './tools/examination.js';
+import { handleExamine, examineToolDefinition } from './tools/examine.js';
 import { handleInventory, inventoryToolDefinition } from './tools/inventory.js';
 import { handleTake, takeToolDefinition } from './tools/take.js';
 import { handleDrop, dropToolDefinition } from './tools/drop.js';
