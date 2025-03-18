@@ -1,72 +1,43 @@
 /**
  * Navigation tool for the Zork MCP server.
- * Handles movement in the Zork environment.
+ * Handles movement commands in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 import { z } from 'zod';
+import { Tool } from './tool.js';
 
 const NavigateArgsSchema = z.object({
-  direction: z.string()
+  direction: z.enum(['north', 'south', 'east', 'west', 'up', 'down'])
 });
 
-export const navigateToolDefinition = {
-  name: 'navigate',
-  description: 'Move in a specified direction',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      direction: {
-        type: 'string',
-        description: 'Direction to move (north, south, east, west, up, down, etc.)'
-      }
-    },
-    required: ['direction']
-  },
-  examples: [
+export class NavigateTool extends Tool<z.infer<typeof NavigateArgsSchema>> {
+  protected schema = NavigateArgsSchema;
+
+  protected name = 'navigate';
+  protected description = 'Move in a direction';
+  protected inputProperties = {
+    direction: {
+      type: 'string',
+      description: 'Direction to move (north, south, east, west, up, down)',
+      enum: ['north', 'south', 'east', 'west', 'up', 'down']
+    }
+  };
+  protected examples = [
     {
       name: 'Go north',
-      args: { direction: 'north' }
+      args: { direction: 'north' as const }
     },
     {
-      name: 'Go up',
-      args: { direction: 'up' }
+      name: 'Go south',
+      args: { direction: 'south' as const }
     }
-  ]
-};
+  ];
 
-/**
- * Handle navigation commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @param args The navigation arguments
- * @returns The result of the navigation
- */
-export function handleNavigate(environment: MockZorkEnvironment, args: unknown) {
-  try {
-    const validatedArgs = NavigateArgsSchema.parse(args);
-    const direction = validatedArgs.direction.toLowerCase().trim();
-    
-    // Execute the movement command
-    const result = environment.step(`go ${direction}`);
-    
-    // Return the result
-    return {
-      content: [
-        {
-          type: 'text',
-          text: result.observation
-        }
-      ]
-    };
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Invalid direction. Please specify a valid direction (north, south, east, west, up, down, etc.).'
-        }
-      ],
-      isError: true
-    };
+  protected executeCommand(environment: MockZorkEnvironment, args: z.infer<typeof NavigateArgsSchema>): string {
+    return args.direction;
+  }
+
+  protected getErrorMessage(): string {
+    return 'Invalid direction. Please specify one of: north, south, east, west, up, down';
   }
 }

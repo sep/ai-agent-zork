@@ -4,25 +4,24 @@
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 import { z } from 'zod';
+import { Tool } from './tool.js';
 
 const CloseArgsSchema = z.object({
   object: z.string()
 });
 
-export const closeToolDefinition = {
-  name: 'close',
-  description: 'Close an object like a mailbox or door',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      object: {
-        type: 'string',
-        description: 'Object to close'
-      }
-    },
-    required: ['object']
-  },
-  examples: [
+export class CloseTool extends Tool<z.infer<typeof CloseArgsSchema>> {
+  protected schema = CloseArgsSchema;
+
+  protected name = 'close';
+  protected description = 'Close an object';
+  protected inputProperties = {
+    object: {
+      type: 'string',
+      description: 'Object to close'
+    }
+  };
+  protected examples = [
     {
       name: 'Close mailbox',
       args: { object: 'mailbox' }
@@ -31,42 +30,13 @@ export const closeToolDefinition = {
       name: 'Close door',
       args: { object: 'door' }
     }
-  ]
-};
+  ];
 
-/**
- * Handle close commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @param args The close arguments
- * @returns The result of the close action
- */
-export function handleClose(environment: MockZorkEnvironment, args: unknown) {
-  try {
-    const validatedArgs = CloseArgsSchema.parse(args);
-    const object = validatedArgs.object.toLowerCase().trim();
-    
-    // Execute the close command
-    const result = environment.step(`close ${object}`);
-    
-    // Return the result
-    return {
-      content: [
-        {
-          type: 'text',
-          text: result.observation
-        }
-      ]
-    };
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Invalid object. Please specify a valid object to close.'
-        }
-      ],
-      isError: true
-    };
+  protected executeCommand(environment: MockZorkEnvironment, args: z.infer<typeof CloseArgsSchema>): string {
+    return `close ${args.object}`;
+  }
+
+  protected getErrorMessage(): string {
+    return 'Invalid object. Please specify an object to close.';
   }
 }

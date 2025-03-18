@@ -4,25 +4,24 @@
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 import { z } from 'zod';
+import { Tool } from './tool.js';
 
 const DropArgsSchema = z.object({
   object: z.string()
 });
 
-export const dropToolDefinition = {
-  name: 'drop',
-  description: 'Drop an object from your inventory',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      object: {
-        type: 'string',
-        description: 'Object to drop'
-      }
-    },
-    required: ['object']
-  },
-  examples: [
+export class DropTool extends Tool<z.infer<typeof DropArgsSchema>> {
+  protected schema = DropArgsSchema;
+
+  protected name = 'drop';
+  protected description = 'Drop an object';
+  protected inputProperties = {
+    object: {
+      type: 'string',
+      description: 'Object to drop'
+    }
+  };
+  protected examples = [
     {
       name: 'Drop leaflet',
       args: { object: 'leaflet' }
@@ -31,42 +30,13 @@ export const dropToolDefinition = {
       name: 'Drop sword',
       args: { object: 'sword' }
     }
-  ]
-};
+  ];
 
-/**
- * Handle drop commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @param args The drop arguments
- * @returns The result of the drop action
- */
-export function handleDrop(environment: MockZorkEnvironment, args: unknown) {
-  try {
-    const validatedArgs = DropArgsSchema.parse(args);
-    const object = validatedArgs.object.toLowerCase().trim();
-    
-    // Execute the drop command
-    const result = environment.step(`drop ${object}`);
-    
-    // Return the result
-    return {
-      content: [
-        {
-          type: 'text',
-          text: result.observation
-        }
-      ]
-    };
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Invalid object. Please specify a valid object to drop.'
-        }
-      ],
-      isError: true
-    };
+  protected executeCommand(environment: MockZorkEnvironment, args: z.infer<typeof DropArgsSchema>): string {
+    return `drop ${args.object}`;
+  }
+
+  protected getErrorMessage(): string {
+    return 'Invalid object. Please specify an object to drop.';
   }
 }

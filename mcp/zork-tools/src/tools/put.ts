@@ -1,78 +1,43 @@
 /**
  * Put tool for the Zork MCP server.
- * Handles putting objects into containers in the Zork environment.
+ * Handles putting objects in containers in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 import { z } from 'zod';
+import { Tool } from './tool.js';
 
 const PutArgsSchema = z.object({
   object: z.string(),
   container: z.string()
 });
 
-export const putToolDefinition = {
-  name: 'put',
-  description: 'Put an object into a container',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      object: {
-        type: 'string',
-        description: 'Object to put'
-      },
-      container: {
-        type: 'string',
-        description: 'Container to put the object in'
-      }
+export class PutTool extends Tool<z.infer<typeof PutArgsSchema>> {
+  protected schema = PutArgsSchema;
+
+  protected name = 'put';
+  protected description = 'Put an object in a container';
+  protected inputProperties = {
+    object: {
+      type: 'string',
+      description: 'Object to put'
     },
-    required: ['object', 'container']
-  },
-  examples: [
+    container: {
+      type: 'string',
+      description: 'Container to put the object in'
+    }
+  };
+  protected examples = [
     {
       name: 'Put leaflet in mailbox',
       args: { object: 'leaflet', container: 'mailbox' }
-    },
-    {
-      name: 'Put sword in case',
-      args: { object: 'sword', container: 'case' }
     }
-  ]
-};
+  ];
 
-/**
- * Handle put commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @param args The put arguments
- * @returns The result of the put action
- */
-export function handlePut(environment: MockZorkEnvironment, args: unknown) {
-  try {
-    const validatedArgs = PutArgsSchema.parse(args);
-    const object = validatedArgs.object.toLowerCase().trim();
-    const container = validatedArgs.container.toLowerCase().trim();
-    
-    // Execute the put command
-    const result = environment.step(`put ${object} in ${container}`);
-    
-    // Return the result
-    return {
-      content: [
-        {
-          type: 'text',
-          text: result.observation
-        }
-      ]
-    };
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Invalid arguments. Please specify a valid object and container.'
-        }
-      ],
-      isError: true
-    };
+  protected executeCommand(environment: MockZorkEnvironment, args: z.infer<typeof PutArgsSchema>): string {
+    return `put ${args.object} in ${args.container}`;
+  }
+
+  protected getErrorMessage(): string {
+    return 'Invalid arguments. Please specify both an object to put and a container to put it in.';
   }
 }

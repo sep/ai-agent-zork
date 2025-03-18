@@ -4,25 +4,24 @@
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 import { z } from 'zod';
+import { Tool } from './tool.js';
 
 const OpenArgsSchema = z.object({
   object: z.string()
 });
 
-export const openToolDefinition = {
-  name: 'open',
-  description: 'Open an object like a mailbox or door',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      object: {
-        type: 'string',
-        description: 'Object to open'
-      }
-    },
-    required: ['object']
-  },
-  examples: [
+export class OpenTool extends Tool<z.infer<typeof OpenArgsSchema>> {
+  protected schema = OpenArgsSchema;
+
+  protected name = 'open';
+  protected description = 'Open an object';
+  protected inputProperties = {
+    object: {
+      type: 'string',
+      description: 'Object to open'
+    }
+  };
+  protected examples = [
     {
       name: 'Open mailbox',
       args: { object: 'mailbox' }
@@ -31,42 +30,13 @@ export const openToolDefinition = {
       name: 'Open door',
       args: { object: 'door' }
     }
-  ]
-};
+  ];
 
-/**
- * Handle open commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @param args The open arguments
- * @returns The result of the open action
- */
-export function handleOpen(environment: MockZorkEnvironment, args: unknown) {
-  try {
-    const validatedArgs = OpenArgsSchema.parse(args);
-    const object = validatedArgs.object.toLowerCase().trim();
-    
-    // Execute the open command
-    const result = environment.step(`open ${object}`);
-    
-    // Return the result
-    return {
-      content: [
-        {
-          type: 'text',
-          text: result.observation
-        }
-      ]
-    };
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Invalid object. Please specify a valid object to open.'
-        }
-      ],
-      isError: true
-    };
+  protected executeCommand(environment: MockZorkEnvironment, args: z.infer<typeof OpenArgsSchema>): string {
+    return `open ${args.object}`;
+  }
+
+  protected getErrorMessage(): string {
+    return 'Invalid object. Please specify an object to open.';
   }
 }

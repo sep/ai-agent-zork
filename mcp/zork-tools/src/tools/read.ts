@@ -4,25 +4,24 @@
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 import { z } from 'zod';
+import { Tool } from './tool.js';
 
 const ReadArgsSchema = z.object({
   object: z.string()
 });
 
-export const readToolDefinition = {
-  name: 'read',
-  description: 'Read an object with text',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      object: {
-        type: 'string',
-        description: 'Object to read'
-      }
-    },
-    required: ['object']
-  },
-  examples: [
+export class ReadTool extends Tool<z.infer<typeof ReadArgsSchema>> {
+  protected schema = ReadArgsSchema;
+
+  protected name = 'read';
+  protected description = 'Read an object';
+  protected inputProperties = {
+    object: {
+      type: 'string',
+      description: 'Object to read'
+    }
+  };
+  protected examples = [
     {
       name: 'Read leaflet',
       args: { object: 'leaflet' }
@@ -31,42 +30,13 @@ export const readToolDefinition = {
       name: 'Read sign',
       args: { object: 'sign' }
     }
-  ]
-};
+  ];
 
-/**
- * Handle read commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @param args The read arguments
- * @returns The result of the read action
- */
-export function handleRead(environment: MockZorkEnvironment, args: unknown) {
-  try {
-    const validatedArgs = ReadArgsSchema.parse(args);
-    const object = validatedArgs.object.toLowerCase().trim();
-    
-    // Execute the read command
-    const result = environment.step(`read ${object}`);
-    
-    // Return the result
-    return {
-      content: [
-        {
-          type: 'text',
-          text: result.observation
-        }
-      ]
-    };
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: 'Invalid object. Please specify a valid object to read.'
-        }
-      ],
-      isError: true
-    };
+  protected executeCommand(environment: MockZorkEnvironment, args: z.infer<typeof ReadArgsSchema>): string {
+    return `read ${args.object}`;
+  }
+
+  protected getErrorMessage(): string {
+    return 'Invalid object. Please specify an object to read.';
   }
 }

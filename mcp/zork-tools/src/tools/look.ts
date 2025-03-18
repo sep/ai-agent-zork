@@ -3,29 +3,29 @@
  * Handles looking at the current location in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
+import { Tool } from './tool.js';
 
-export const lookToolDefinition = {
-  name: 'look',
-  description: 'Look at your current location'
-};
+const LookArgsSchema = z.object({});
 
-/**
- * Handle look commands in the Zork environment.
- * 
- * @param environment The Zork environment
- * @returns The result of the look command
- */
-export function handleLook(environment: MockZorkEnvironment) {
-  // Execute the look command
-  const result = environment.step('look');
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
+export class LookTool extends Tool<z.infer<typeof LookArgsSchema>> {
+  protected schema = LookArgsSchema;
+
+  protected name = 'look';
+  protected description = 'Look at your current location';
+  protected inputProperties = {};
+  protected examples = [
+    {
+      name: 'Look around',
+      args: {}
+    }
+  ];
+
+  protected executeCommand(environment: MockZorkEnvironment): string {
+    return 'look';
+  }
+
+  protected getErrorMessage(): string {
+    return 'Failed to look around.';
+  }
 } 

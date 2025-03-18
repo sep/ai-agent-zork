@@ -11,23 +11,37 @@ import {
 // Import the mock environment
 import { MockZorkEnvironment } from './mock-environment.js';
 
-// Import tool handlers and definitions
-import { handleNavigate, navigateToolDefinition } from './tools/navigation.js';
-import { handleExamine, examineToolDefinition } from './tools/examine.js';
-import { handleInventory, inventoryToolDefinition } from './tools/inventory.js';
-import { handleTake, takeToolDefinition } from './tools/take.js';
-import { handleDrop, dropToolDefinition } from './tools/drop.js';
-import { handleRead, readToolDefinition } from './tools/read.js';
-import { handleOpen, openToolDefinition } from './tools/open.js';
-import { handleClose, closeToolDefinition } from './tools/close.js';
-import { handlePut, putToolDefinition } from './tools/put.js';
-import { handleLamp, lampToolDefinition } from './tools/lamp.js';
-import { handleMove, moveToolDefinition } from './tools/move.js';
-import { handleLook, lookToolDefinition } from './tools/look.js';
+// Import tool classes
+import { NavigateTool } from './tools/navigation.js';
+import { ExamineTool } from './tools/examine.js';
+import { InventoryTool } from './tools/inventory.js';
+import { TakeTool } from './tools/take.js';
+import { DropTool } from './tools/drop.js';
+import { ReadTool } from './tools/read.js';
+import { OpenTool } from './tools/open.js';
+import { CloseTool } from './tools/close.js';
+import { PutTool } from './tools/put.js';
+import { LampTool } from './tools/lamp.js';
+import { MoveTool } from './tools/move.js';
+import { LookTool } from './tools/look.js';
 
 class ZorkToolsServer {
   private server: Server;
   private environment: MockZorkEnvironment;
+  private tools = {
+    navigate: new NavigateTool(),
+    examine: new ExamineTool(),
+    inventory: new InventoryTool(),
+    take: new TakeTool(),
+    drop: new DropTool(),
+    read: new ReadTool(),
+    open: new OpenTool(),
+    close: new CloseTool(),
+    put: new PutTool(),
+    lamp: new LampTool(),
+    move: new MoveTool(),
+    look: new LookTool()
+  };
 
   constructor() {
     this.server = new Server(
@@ -59,57 +73,23 @@ class ZorkToolsServer {
   private setupToolHandlers() {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-              tools: [
-                navigateToolDefinition,
-                examineToolDefinition,
-                inventoryToolDefinition,
-                takeToolDefinition,
-                dropToolDefinition,
-                readToolDefinition,
-                openToolDefinition,
-                closeToolDefinition,
-                putToolDefinition,
-                lampToolDefinition,
-                moveToolDefinition,
-                lookToolDefinition
-              ]
+      tools: Object.values(this.tools).map(tool => tool.toolDefinition)
     }));
 
     // Handle tool execution
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       try {
         const { name, arguments: args = {} } = request.params;
-        switch (name) {
-          case 'navigate':
-            return handleNavigate(this.environment, args);
-          case 'examine':
-            return handleExamine(this.environment, args);
-          case 'inventory':
-            return handleInventory(this.environment);
-          case 'take':
-            return handleTake(this.environment, args);
-          case 'drop':
-            return handleDrop(this.environment, args);
-          case 'read':
-            return handleRead(this.environment, args);
-          case 'look':
-            return handleLook(this.environment);
-          case 'open':
-            return handleOpen(this.environment, args);
-          case 'close':
-            return handleClose(this.environment, args);
-          case 'put':
-            return handlePut(this.environment, args);
-          case 'lamp':
-            return handleLamp(this.environment, args);
-          case 'move':
-            return handleMove(this.environment, args);
-          default:
-            throw new McpError(
-              ErrorCode.MethodNotFound,
-              `Unknown tool: ${request.params.name}`
-            );
+        const tool = this.tools[name as keyof typeof this.tools];
+        
+        if (!tool) {
+          throw new McpError(
+            ErrorCode.MethodNotFound,
+            `Unknown tool: ${request.params.name}`
+          );
         }
+
+        return tool.handle(this.environment, args);
       } catch (error) {
         if (error instanceof McpError) {
           throw error;
