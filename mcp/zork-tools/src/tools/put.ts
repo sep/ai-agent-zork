@@ -3,11 +3,12 @@
  * Handles putting objects into containers in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface PutArgs {
-  object: string;
-  container: string;
-}
+const PutArgsSchema = z.object({
+  object: z.string(),
+  container: z.string()
+});
 
 export const putToolDefinition = {
   name: 'put',
@@ -45,9 +46,25 @@ export const putToolDefinition = {
  * @param args The put arguments
  * @returns The result of the put action
  */
-export function handlePut(environment: MockZorkEnvironment, args: PutArgs) {
-  // Validate arguments
-  if (!args || typeof args.object !== 'string' || typeof args.container !== 'string') {
+export function handlePut(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = PutArgsSchema.parse(args);
+    const object = validatedArgs.object.toLowerCase().trim();
+    const container = validatedArgs.container.toLowerCase().trim();
+    
+    // Execute the put command
+    const result = environment.step(`put ${object} in ${container}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -58,21 +75,4 @@ export function handlePut(environment: MockZorkEnvironment, args: PutArgs) {
       isError: true
     };
   }
-
-  // Normalize the object and container names
-  const object = args.object.toLowerCase().trim();
-  const container = args.container.toLowerCase().trim();
-  
-  // Execute the put command
-  const result = environment.step(`put ${object} in ${container}`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

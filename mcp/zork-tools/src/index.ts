@@ -47,7 +47,7 @@ class ZorkToolsServer {
     
     // Set up tool handlers
     this.setupToolHandlers();
-    
+
     // Error handling
     this.server.onerror = (error) => console.error('[MCP Error]', error);
     process.on('SIGINT', async () => {
@@ -59,50 +59,51 @@ class ZorkToolsServer {
   private setupToolHandlers() {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
-        navigateToolDefinition,
-        examineToolDefinition,
-        inventoryToolDefinition,
-        takeToolDefinition,
-        dropToolDefinition,
-        readToolDefinition,
-        openToolDefinition,
-        closeToolDefinition,
-        putToolDefinition,
-        lampToolDefinition,
-        moveToolDefinition,
-        lookToolDefinition
-      ]
+              tools: [
+                navigateToolDefinition,
+                examineToolDefinition,
+                inventoryToolDefinition,
+                takeToolDefinition,
+                dropToolDefinition,
+                readToolDefinition,
+                openToolDefinition,
+                closeToolDefinition,
+                putToolDefinition,
+                lampToolDefinition,
+                moveToolDefinition,
+                lookToolDefinition
+              ]
     }));
 
     // Handle tool execution
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       try {
-        switch (request.params.name) {
+        const { name, arguments: args = {} } = request.params;
+        switch (name) {
           case 'navigate':
-            return handleNavigate(this.environment, request.params.arguments);
+            return handleNavigate(this.environment, args);
           case 'examine':
-            return handleExamine(this.environment, request.params.arguments);
+            return handleExamine(this.environment, args);
           case 'inventory':
             return handleInventory(this.environment);
           case 'take':
-            return handleTake(this.environment, request.params.arguments);
+            return handleTake(this.environment, args);
           case 'drop':
-            return handleDrop(this.environment, request.params.arguments);
+            return handleDrop(this.environment, args);
           case 'read':
-            return handleRead(this.environment, request.params.arguments);
+            return handleRead(this.environment, args);
           case 'look':
             return handleLook(this.environment);
           case 'open':
-            return handleOpen(this.environment, request.params.arguments);
+            return handleOpen(this.environment, args);
           case 'close':
-            return handleClose(this.environment, request.params.arguments);
+            return handleClose(this.environment, args);
           case 'put':
-            return handlePut(this.environment, request.params.arguments);
+            return handlePut(this.environment, args);
           case 'lamp':
-            return handleLamp(this.environment, request.params.arguments);
+            return handleLamp(this.environment, args);
           case 'move':
-            return handleMove(this.environment, request.params.arguments);
+            return handleMove(this.environment, args);
           default:
             throw new McpError(
               ErrorCode.MethodNotFound,

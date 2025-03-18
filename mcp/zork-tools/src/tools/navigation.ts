@@ -3,10 +3,11 @@
  * Handles movement in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface NavigateArgs {
-  direction: string;
-}
+const NavigateArgsSchema = z.object({
+  direction: z.string()
+});
 
 export const navigateToolDefinition = {
   name: 'navigate',
@@ -40,9 +41,24 @@ export const navigateToolDefinition = {
  * @param args The navigation arguments
  * @returns The result of the navigation
  */
-export function handleNavigate(environment: MockZorkEnvironment, args: NavigateArgs) {
-  // Validate arguments
-  if (!args || typeof args.direction !== 'string') {
+export function handleNavigate(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = NavigateArgsSchema.parse(args);
+    const direction = validatedArgs.direction.toLowerCase().trim();
+    
+    // Execute the movement command
+    const result = environment.step(`go ${direction}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -53,20 +69,4 @@ export function handleNavigate(environment: MockZorkEnvironment, args: NavigateA
       isError: true
     };
   }
-
-  // Normalize the direction
-  const direction = args.direction.toLowerCase().trim();
-  
-  // Execute the movement command
-  const result = environment.step(`go ${direction}`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

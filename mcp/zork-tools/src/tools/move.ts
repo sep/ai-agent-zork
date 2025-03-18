@@ -3,10 +3,11 @@
  * Handles moving objects in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface MoveArgs {
-  object: string;
-}
+const MoveArgsSchema = z.object({
+  object: z.string()
+});
 
 export const moveToolDefinition = {
   name: 'move',
@@ -40,9 +41,24 @@ export const moveToolDefinition = {
  * @param args The move arguments
  * @returns The result of the move action
  */
-export function handleMove(environment: MockZorkEnvironment, args: MoveArgs) {
-  // Validate arguments
-  if (!args || typeof args.object !== 'string') {
+export function handleMove(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = MoveArgsSchema.parse(args);
+    const object = validatedArgs.object.toLowerCase().trim();
+    
+    // Execute the move command
+    const result = environment.step(`move ${object}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -53,20 +69,4 @@ export function handleMove(environment: MockZorkEnvironment, args: MoveArgs) {
       isError: true
     };
   }
-
-  // Normalize the object name
-  const object = args.object.toLowerCase().trim();
-  
-  // Execute the move command
-  const result = environment.step(`move ${object}`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

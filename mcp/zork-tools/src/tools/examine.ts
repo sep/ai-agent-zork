@@ -1,48 +1,64 @@
 /**
- * Examination tool for the Zork MCP server.
- * Handles examining objects in the Zork environment.
+ * Examine tool for the Zork MCP server.
+ * Handles examining objects and locations in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface ExamineArgs {
-  object: string;
-}
+const ExamineArgsSchema = z.object({
+  object: z.string()
+});
 
 export const examineToolDefinition = {
   name: 'examine',
-  description: 'Examine an object in the environment',
+  description: 'Examine an object or location',
   inputSchema: {
     type: 'object',
     properties: {
       object: {
         type: 'string',
-        description: 'Object to examine'
+        description: 'Object or location to examine'
       }
     },
     required: ['object']
   },
   examples: [
     {
-      name: 'Examine mailbox',
-      args: { object: 'mailbox' }
+      name: 'Examine a key',
+      args: { object: 'key' }
     },
     {
-      name: 'Examine leaflet',
-      args: { object: 'leaflet' }
+      name: 'Examine the room',
+      args: { object: 'room' }
     }
   ]
 };
 
 /**
- * Handle examination commands in the Zork environment.
+ * Handle examine commands in the Zork environment.
  * 
  * @param environment The Zork environment
- * @param args The examination arguments
+ * @param args The examine arguments
  * @returns The result of the examination
  */
-export function handleExamine(environment: MockZorkEnvironment, args: ExamineArgs) {
-  // Validate arguments
-  if (!args || typeof args.object !== 'string') {
+export function handleExamine(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = ExamineArgsSchema.parse(args);
+    const object = validatedArgs.object.toLowerCase().trim();
+    
+    // Execute the examine command
+    const result = environment.step(`examine ${object}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -53,20 +69,4 @@ export function handleExamine(environment: MockZorkEnvironment, args: ExamineArg
       isError: true
     };
   }
-
-  // Normalize the object name
-  const object = args.object.toLowerCase().trim();
-  
-  // Execute the examine command
-  const result = environment.step(`examine ${object}`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

@@ -3,10 +3,11 @@
  * Handles closing objects in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface CloseArgs {
-  object: string;
-}
+const CloseArgsSchema = z.object({
+  object: z.string()
+});
 
 export const closeToolDefinition = {
   name: 'close',
@@ -40,9 +41,24 @@ export const closeToolDefinition = {
  * @param args The close arguments
  * @returns The result of the close action
  */
-export function handleClose(environment: MockZorkEnvironment, args: CloseArgs) {
-  // Validate arguments
-  if (!args || typeof args.object !== 'string') {
+export function handleClose(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = CloseArgsSchema.parse(args);
+    const object = validatedArgs.object.toLowerCase().trim();
+    
+    // Execute the close command
+    const result = environment.step(`close ${object}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -53,20 +69,4 @@ export function handleClose(environment: MockZorkEnvironment, args: CloseArgs) {
       isError: true
     };
   }
-
-  // Normalize the object name
-  const object = args.object.toLowerCase().trim();
-  
-  // Execute the close command
-  const result = environment.step(`close ${object}`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

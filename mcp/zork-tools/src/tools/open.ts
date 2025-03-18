@@ -3,10 +3,11 @@
  * Handles opening objects in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface OpenArgs {
-  object: string;
-}
+const OpenArgsSchema = z.object({
+  object: z.string()
+});
 
 export const openToolDefinition = {
   name: 'open',
@@ -40,9 +41,24 @@ export const openToolDefinition = {
  * @param args The open arguments
  * @returns The result of the open action
  */
-export function handleOpen(environment: MockZorkEnvironment, args: OpenArgs) {
-  // Validate arguments
-  if (!args || typeof args.object !== 'string') {
+export function handleOpen(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = OpenArgsSchema.parse(args);
+    const object = validatedArgs.object.toLowerCase().trim();
+    
+    // Execute the open command
+    const result = environment.step(`open ${object}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -53,20 +69,4 @@ export function handleOpen(environment: MockZorkEnvironment, args: OpenArgs) {
       isError: true
     };
   }
-
-  // Normalize the object name
-  const object = args.object.toLowerCase().trim();
-  
-  // Execute the open command
-  const result = environment.step(`open ${object}`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

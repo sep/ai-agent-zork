@@ -3,10 +3,11 @@
  * Handles controlling the lamp in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface LampArgs {
-  action: 'on' | 'off';
-}
+const LampArgsSchema = z.object({
+  action: z.enum(['on', 'off'])
+});
 
 export const lampToolDefinition = {
   name: 'lamp',
@@ -41,30 +42,32 @@ export const lampToolDefinition = {
  * @param args The lamp arguments
  * @returns The result of the lamp action
  */
-export function handleLamp(environment: MockZorkEnvironment, args: LampArgs) {
-  // Validate arguments
-  if (!args || (args.action !== 'on' && args.action !== 'off')) {
+export function handleLamp(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = LampArgsSchema.parse(args);
+    const action = validatedArgs.action;
+    
+    // Execute the lamp command
+    const result = environment.step(`turn ${action} lamp`);
+    
+    // Return the result
     return {
       content: [
         {
           type: 'text',
-          text: 'Invalid action. Please specify either "on" or "off" for the lamp.'
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: 'Invalid action. Please specify either "on" or "off".'
         }
       ],
       isError: true
     };
   }
-
-  // Execute the lamp command
-  const result = environment.step(`turn ${args.action} lamp`);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      }
-    ]
-  };
 }

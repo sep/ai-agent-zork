@@ -1,34 +1,35 @@
 /**
  * Take tool for the Zork MCP server.
- * Handles taking objects in the Zork environment.
+ * Handles picking up objects in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+import { z } from 'zod';
 
-interface TakeArgs {
-  object: string;
-}
+const TakeArgsSchema = z.object({
+  object: z.string()
+});
 
 export const takeToolDefinition = {
   name: 'take',
-  description: 'Take an object',
+  description: 'Pick up an object',
   inputSchema: {
     type: 'object',
     properties: {
       object: {
         type: 'string',
-        description: 'Object to take'
+        description: 'Object to pick up'
       }
     },
     required: ['object']
   },
   examples: [
     {
-      name: 'Take leaflet',
-      args: { object: 'leaflet' }
+      name: 'Take a key',
+      args: { object: 'key' }
     },
     {
-      name: 'Take sword',
-      args: { object: 'sword' }
+      name: 'Take a leaflet',
+      args: { object: 'leaflet' }
     }
   ]
 };
@@ -38,11 +39,26 @@ export const takeToolDefinition = {
  * 
  * @param environment The Zork environment
  * @param args The take arguments
- * @returns The result of the take command
+ * @returns The result of the take action
  */
-export function handleTake(environment: MockZorkEnvironment, args: TakeArgs) {
-  // Validate arguments
-  if (!args || typeof args.object !== 'string') {
+export function handleTake(environment: MockZorkEnvironment, args: unknown) {
+  try {
+    const validatedArgs = TakeArgsSchema.parse(args);
+    const object = validatedArgs.object.toLowerCase().trim();
+    
+    // Execute the take command
+    const result = environment.step(`take ${object}`);
+    
+    // Return the result
+    return {
+      content: [
+        {
+          type: 'text',
+          text: result.observation
+        }
+      ]
+    };
+  } catch (error) {
     return {
       content: [
         {
@@ -53,32 +69,4 @@ export function handleTake(environment: MockZorkEnvironment, args: TakeArgs) {
       isError: true
     };
   }
-
-  // Normalize the object name
-  const object = args.object.toLowerCase().trim();
-  
-  // Execute the take command
-  const result = environment.step(`take ${object}`);
-  
-  // Check if the take was successful by comparing inventory before and after
-  const inventoryBefore = environment.getInventory();
-  const wasSuccessful = result.observation.toLowerCase().includes('taken') || 
-                        (inventoryBefore.length < result.inventory.length);
-  
-  // Return the result
-  return {
-    content: [
-      {
-        type: 'text',
-        text: result.observation
-      },
-      {
-        type: 'json',
-        json: {
-          success: wasSuccessful,
-          inventory: result.inventory
-        }
-      }
-    ]
-  };
 }
