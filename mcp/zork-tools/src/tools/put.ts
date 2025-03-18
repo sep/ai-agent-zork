@@ -9,6 +9,35 @@ interface PutArgs {
   container: string;
 }
 
+export const putToolDefinition = {
+  name: 'put',
+  description: 'Put an object into a container',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to put'
+      },
+      container: {
+        type: 'string',
+        description: 'Container to put the object in'
+      }
+    },
+    required: ['object', 'container']
+  },
+  examples: [
+    {
+      name: 'Put leaflet in mailbox',
+      args: { object: 'leaflet', container: 'mailbox' }
+    },
+    {
+      name: 'Put sword in case',
+      args: { object: 'sword', container: 'case' }
+    }
+  ]
+};
+
 /**
  * Handle put commands in the Zork environment.
  * 

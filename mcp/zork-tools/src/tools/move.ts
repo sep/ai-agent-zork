@@ -8,6 +8,31 @@ interface MoveArgs {
   object: string;
 }
 
+export const moveToolDefinition = {
+  name: 'move',
+  description: 'Move an object like the rug',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to move'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Move rug',
+      args: { object: 'rug' }
+    },
+    {
+      name: 'Move rock',
+      args: { object: 'rock' }
+    }
+  ]
+};
+
 /**
  * Handle move commands in the Zork environment.
  * 

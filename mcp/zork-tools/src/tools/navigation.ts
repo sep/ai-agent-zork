@@ -1,12 +1,37 @@
 /**
  * Navigation tool for the Zork MCP server.
- * Handles movement commands in the Zork environment.
+ * Handles movement in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 
 interface NavigateArgs {
   direction: string;
 }
+
+export const navigateToolDefinition = {
+  name: 'navigate',
+  description: 'Move in a specified direction',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      direction: {
+        type: 'string',
+        description: 'Direction to move (north, south, east, west, up, down, etc.)'
+      }
+    },
+    required: ['direction']
+  },
+  examples: [
+    {
+      name: 'Go north',
+      args: { direction: 'north' }
+    },
+    {
+      name: 'Go up',
+      args: { direction: 'up' }
+    }
+  ]
+};
 
 /**
  * Handle navigation commands in the Zork environment.

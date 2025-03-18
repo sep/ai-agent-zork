@@ -8,6 +8,31 @@ interface CloseArgs {
   object: string;
 }
 
+export const closeToolDefinition = {
+  name: 'close',
+  description: 'Close an object like a mailbox or door',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to close'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Close mailbox',
+      args: { object: 'mailbox' }
+    },
+    {
+      name: 'Close door',
+      args: { object: 'door' }
+    }
+  ]
+};
+
 /**
  * Handle close commands in the Zork environment.
  * 

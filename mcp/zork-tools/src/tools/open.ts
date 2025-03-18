@@ -8,6 +8,31 @@ interface OpenArgs {
   object: string;
 }
 
+export const openToolDefinition = {
+  name: 'open',
+  description: 'Open an object like a mailbox or door',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to open'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Open mailbox',
+      args: { object: 'mailbox' }
+    },
+    {
+      name: 'Open door',
+      args: { object: 'door' }
+    }
+  ]
+};
+
 /**
  * Handle open commands in the Zork environment.
  * 

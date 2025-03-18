@@ -8,6 +8,31 @@ interface ReadArgs {
   object: string;
 }
 
+export const readToolDefinition = {
+  name: 'read',
+  description: 'Read an object with text',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to read'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Read leaflet',
+      args: { object: 'leaflet' }
+    },
+    {
+      name: 'Read sign',
+      args: { object: 'sign' }
+    }
+  ]
+};
+
 /**
  * Handle read commands in the Zork environment.
  * 

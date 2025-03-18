@@ -1,12 +1,38 @@
 /**
  * Lamp tool for the Zork MCP server.
- * Handles turning the lamp on and off in the Zork environment.
+ * Handles controlling the lamp in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
 
 interface LampArgs {
   action: 'on' | 'off';
 }
+
+export const lampToolDefinition = {
+  name: 'lamp',
+  description: 'Turn the lamp on or off',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      action: {
+        type: 'string',
+        description: 'Action to perform with the lamp (on or off)',
+        enum: ['on', 'off']
+      }
+    },
+    required: ['action']
+  },
+  examples: [
+    {
+      name: 'Turn lamp on',
+      args: { action: 'on' }
+    },
+    {
+      name: 'Turn lamp off',
+      args: { action: 'off' }
+    }
+  ]
+};
 
 /**
  * Handle lamp commands in the Zork environment.

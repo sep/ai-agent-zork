@@ -8,6 +8,31 @@ interface ExamineArgs {
   object: string;
 }
 
+export const examineToolDefinition = {
+  name: 'examine',
+  description: 'Examine an object in the environment',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to examine'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Examine mailbox',
+      args: { object: 'mailbox' }
+    },
+    {
+      name: 'Examine leaflet',
+      args: { object: 'leaflet' }
+    }
+  ]
+};
+
 /**
  * Handle examination commands in the Zork environment.
  * 

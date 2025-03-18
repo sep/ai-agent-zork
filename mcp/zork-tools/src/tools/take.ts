@@ -8,6 +8,31 @@ interface TakeArgs {
   object: string;
 }
 
+export const takeToolDefinition = {
+  name: 'take',
+  description: 'Take an object',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to take'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Take leaflet',
+      args: { object: 'leaflet' }
+    },
+    {
+      name: 'Take sword',
+      args: { object: 'sword' }
+    }
+  ]
+};
+
 /**
  * Handle take commands in the Zork environment.
  * 

@@ -1,8 +1,23 @@
 /**
  * Inventory tool for the Zork MCP server.
- * Handles checking the player's inventory in the Zork environment.
+ * Handles checking inventory in the Zork environment.
  */
 import { MockZorkEnvironment } from '../mock-environment.js';
+
+export const inventoryToolDefinition = {
+  name: 'inventory',
+  description: 'Check your inventory',
+  inputSchema: {
+    type: 'object',
+    properties: {}
+  },
+  examples: [
+    {
+      name: 'Check inventory',
+      args: {}
+    }
+  ]
+};
 
 /**
  * Handle inventory commands in the Zork environment.

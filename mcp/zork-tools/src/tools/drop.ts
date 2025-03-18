@@ -8,6 +8,31 @@ interface DropArgs {
   object: string;
 }
 
+export const dropToolDefinition = {
+  name: 'drop',
+  description: 'Drop an object from your inventory',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      object: {
+        type: 'string',
+        description: 'Object to drop'
+      }
+    },
+    required: ['object']
+  },
+  examples: [
+    {
+      name: 'Drop leaflet',
+      args: { object: 'leaflet' }
+    },
+    {
+      name: 'Drop sword',
+      args: { object: 'sword' }
+    }
+  ]
+};
+
 /**
  * Handle drop commands in the Zork environment.
  * 
