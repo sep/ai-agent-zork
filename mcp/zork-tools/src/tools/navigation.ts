@@ -40,7 +40,7 @@ export const navigateToolDefinition = {
  * @param args The navigation arguments
  * @returns The result of the navigation
  */
-export function handleNavigate(environment: MockZorkEnvironment, args: any) {
+export function handleNavigate(environment: MockZorkEnvironment, args: NavigateArgs) {
   // Validate arguments
   if (!args || typeof args.direction !== 'string') {
     return {

@@ -40,7 +40,7 @@ export const openToolDefinition = {
  * @param args The open arguments
  * @returns The result of the open action
  */
-export function handleOpen(environment: MockZorkEnvironment, args: any) {
+export function handleOpen(environment: MockZorkEnvironment, args: OpenArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {

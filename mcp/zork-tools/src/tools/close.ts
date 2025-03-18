@@ -40,7 +40,7 @@ export const closeToolDefinition = {
  * @param args The close arguments
  * @returns The result of the close action
  */
-export function handleClose(environment: MockZorkEnvironment, args: any) {
+export function handleClose(environment: MockZorkEnvironment, args: CloseArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {

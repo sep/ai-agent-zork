@@ -40,7 +40,7 @@ export const readToolDefinition = {
  * @param args The read arguments
  * @returns The result of the read command
  */
-export function handleRead(environment: MockZorkEnvironment, args: any) {
+export function handleRead(environment: MockZorkEnvironment, args: ReadArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {

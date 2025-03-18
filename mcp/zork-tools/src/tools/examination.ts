@@ -40,7 +40,7 @@ export const examineToolDefinition = {
  * @param args The examination arguments
  * @returns The result of the examination
  */
-export function handleExamine(environment: MockZorkEnvironment, args: any) {
+export function handleExamine(environment: MockZorkEnvironment, args: ExamineArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {

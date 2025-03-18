@@ -40,7 +40,7 @@ export const takeToolDefinition = {
  * @param args The take arguments
  * @returns The result of the take command
  */
-export function handleTake(environment: MockZorkEnvironment, args: any) {
+export function handleTake(environment: MockZorkEnvironment, args: TakeArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {

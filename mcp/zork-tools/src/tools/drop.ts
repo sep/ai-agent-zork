@@ -40,7 +40,7 @@ export const dropToolDefinition = {
  * @param args The drop arguments
  * @returns The result of the drop command
  */
-export function handleDrop(environment: MockZorkEnvironment, args: any) {
+export function handleDrop(environment: MockZorkEnvironment, args: DropArgs) {
   // Validate arguments
   if (!args || typeof args.object !== 'string') {
     return {
