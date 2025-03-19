@@ -21,7 +21,7 @@ import { ReadTool } from './tools/read.js';
 import { OpenTool } from './tools/open.js';
 import { CloseTool } from './tools/close.js';
 import { PutTool } from './tools/put.js';
-import { LampTool } from './tools/lamp.js';
+import { TurnTool } from './tools/turn.js';
 import { MoveTool } from './tools/move.js';
 import { LookTool } from './tools/look.js';
 
@@ -38,7 +38,7 @@ class ZorkToolsServer {
     open: new OpenTool(),
     close: new CloseTool(),
     put: new PutTool(),
-    lamp: new LampTool(),
+    turn: new TurnTool(),
     move: new MoveTool(),
     look: new LookTool()
   };
